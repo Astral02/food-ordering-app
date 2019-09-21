@@ -16,7 +16,14 @@ class Home extends Component {
         this.state = {
             restaurants: []
         }
+        this.state.sortByCustomerRatingAsc = this.sortByCustomerRatingAsc.bind(this);
     }
+
+    sortByCustomerRatingAsc() {
+        this.setState(prevState => {
+          this.state.restaurants.sort((a, b) => (a.customer_rating - b.customer_rating))
+      });
+      }
 
     // componentDidMount() {
     //     fetch('http://localhost:8080/api/swagger-ui.html#!/restaurant-controller/getAllRestaurantsUsingGET')
@@ -51,10 +58,10 @@ class Home extends Component {
 
     render() {
         const { classes } = this.props;
+        sortByCustomerRatingAsc = this.sortByCustomerRatingAsc;
         return (
 
             <div>
-
                 <div className='root'>
                     <GridList className='gridList' cols={4}>
 
