@@ -1,0 +1,28 @@
+.root{
+    flex-grow: 1;
+}
+
+.card {
+    max-Width: 345;
+  }
+
+  .media {
+    height: 140;
+  }
+
+  .gridList {
+    flex-Wrap: 'nowrap';
+    transform: 'translateZ(0)';
+  }
+
+  .rating {
+    background-color: yellow;
+    color: white;
+    margin: 10px;
+  }
+  
+  .avgPrice {
+    color: black;
+    margin: 10px;
+  }
+  
