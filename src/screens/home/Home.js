@@ -14,7 +14,11 @@ class Home extends Component {
     constructor() {
         super();
         this.state = {
-            restaurants: []
+            restaurants: [],
+            restaurant_name = '',
+            categories = '',
+            customer_rating = 0,
+            average_price = 0
         }
         this.state.sortByCustomerRatingAsc = this.sortByCustomerRatingAsc.bind(this);
     }
