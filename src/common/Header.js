@@ -18,6 +18,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import Snackbar from '@material-ui/core/Snackbar';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import { Link } from 'react-router-dom';
 
 const loginModalStyle = {
     content: {
@@ -178,6 +179,7 @@ class Header extends Component {
 
                 sessionStorage.setItem('user-uuid', responseText.id);
                 sessionStorage.setItem('access-token', xhrLogin.getResponseHeader('access-token'));
+                sessionStorage.setItem('user-first-name', responseText.first_name);
 
                 that.setState({
                     loggedIn: true,
@@ -347,6 +349,19 @@ class Header extends Component {
         this.setState({ anchorEl: null });
     }
 
+    myProfileOnClickHandler = () => {
+        this.setState({ anchorEl: null });
+    }
+
+    logoutOnClickHandler = () => {
+        sessionStorage.removeItem('user-uuid');
+        sessionStorage.removeItem('access-token');
+        this.setState({
+            anchorEl: null,
+            loggedIn: false
+        });
+    }
+
 
     render() {
         const { classes } = this.props;
@@ -402,7 +417,7 @@ class Header extends Component {
                                     onClick={this.userMenuOnClickHandler}
                                 >
                                     <AccountCircleIcon id='login-btn-icon' />
-                                    {this.state.userFirstName}
+                                    {sessionStorage.getItem('user-first-name')}
                                 </Button>
                                 <Menu
                                     id='user-menu'
@@ -410,8 +425,12 @@ class Header extends Component {
                                     open={Boolean(anchorEl)}
                                     onClose={this.userMenuOnCloseHandler}
                                 >
-                                    <MenuItem onClick={this.userMenuOnCloseHandler}>My Profile</MenuItem>
-                                    <MenuItem onClick={this.userMenuOnCloseHandler}>Logout</MenuItem>
+                                      <MenuItem onClick={this.myProfileOnClickHandler}>
+                                        <Link to='/profile' style={{ textDecoration: 'none' }}>
+                                            My Profile
+                                        </Link>
+                                    </MenuItem>
+                                    <MenuItem onClick={this.logoutOnClickHandler}>Logout</MenuItem>
                                 </Menu>
                             </div>
                         }
