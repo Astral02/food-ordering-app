@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Home.css';
+import Header from '../../common/Header';
 import GridList from '@material-ui/core/GridList';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -66,6 +67,7 @@ class Home extends Component {
         return (
 
             <div>
+              <Header />
                 <div className='root'>
                     <GridList className='gridList' cols={4}>
 
