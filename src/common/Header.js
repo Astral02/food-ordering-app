@@ -16,6 +16,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import PropTypes from 'prop-types';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Snackbar from '@material-ui/core/Snackbar';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const loginModalStyle = {
     content: {
@@ -78,6 +80,7 @@ class Header extends Component {
             userFirstName: '',
             openLoginSuccessMsg: false,
             openSignupSuccessMsg: false,
+            anchorEl: null
         }
     }
 
@@ -336,8 +339,18 @@ class Header extends Component {
         this.setState({openSignupSuccessMsg: false});
     }
 
+    userMenuOnClickHandler = event => {
+        this.setState({ anchorEl: event.currentTarget });
+    }
+
+    userMenuOnCloseHandler = () => {
+        this.setState({ anchorEl: null });
+    }
+
+
     render() {
         const { classes } = this.props;
+        const { anchorEl } = this.state;
         return (
             <div>
 
@@ -366,12 +379,42 @@ class Header extends Component {
                     </div>
 
                     {/* header app login */}
-                    <div className='app-login'>
-                        <Button id='login-btn' size='medium' variant='contained' color='default' onClick={this.openLoginModalHandler}>
-                            <AccountCircleIcon id='login-btn-icon' />
-                            LOGIN
-                        </Button>
-                    </div>
+                    {!this.state.loggedIn ?
+                            <div className='app-login'>
+                                <Button
+                                    id='login-btn'
+                                    size='medium'
+                                    variant='contained'
+                                    color='default'
+                                    onClick={this.openLoginModalHandler}
+                                >
+                                    <AccountCircleIcon id='login-btn-icon' />
+                                    LOGIN
+                                </Button>
+                            </div>
+                            :
+                            <div className='app-login'>
+                                <Button
+                                    id='login-btn'
+                                    size='medium'
+                                    aria-owns={anchorEl ? 'simple-menu' : undefined}
+                                    aria-haspopup='true'
+                                    onClick={this.userMenuOnClickHandler}
+                                >
+                                    <AccountCircleIcon id='login-btn-icon' />
+                                    {this.state.userFirstName}
+                                </Button>
+                                <Menu
+                                    id='user-menu'
+                                    anchorEl={anchorEl}
+                                    open={Boolean(anchorEl)}
+                                    onClose={this.userMenuOnCloseHandler}
+                                >
+                                    <MenuItem onClick={this.userMenuOnCloseHandler}>My Profile</MenuItem>
+                                    <MenuItem onClick={this.userMenuOnCloseHandler}>Logout</MenuItem>
+                                </Menu>
+                            </div>
+                        }
 
                 </header>
 
