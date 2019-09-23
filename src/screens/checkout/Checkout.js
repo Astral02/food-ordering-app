@@ -31,25 +31,25 @@ import CardContent from '@material-ui/core/CardContent';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 import Snackbar from '@material-ui/core/Snackbar';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import { Icon, InlineIcon } from '@iconify/react';
+import inrIcon from '@iconify/icons-fa/inr';
 
 const styles = theme => ({
-    stepperRoot: {
-        width: '90%',
-    },
-    button: {
-        marginTop: theme.spacing.unit,
-        marginRight: theme.spacing.unit,
+    stepperButton: {
+        marginTop: theme.spacing(1),
+        marginRight: theme.spacing(1),
     },
     actionsContainer: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
     },
     resetContainer: {
-        padding: theme.spacing.unit * 3,
+        padding: theme.spacing(3),
     },
     tabRoot: {
         flexGrow: 1,
         backgroundColor: theme.palette.background.paper,
-        width: '70%'
     },
     existingAddressTabContainer: {
         float: 'left',
@@ -78,29 +78,49 @@ const styles = theme => ({
     radioRoot: {
         display: 'flex',
     },
+    newAddressStateSelect: {
+        width: '194px',
+    },
     radioFormControl: {
-        margin: theme.spacing.unit * 3,
+        margin: theme.spacing(3),
     },
     radioGroup: {
-        margin: `${theme.spacing.unit}px 0`,
+        margin: `${theme.spacing(1)}px 0`,
     },
     summaryCard: {
         marginRight: '15px',
         marginTop: '25px',
     },
+    summaryCardDivider: {
+        marginTop: '5px',
+    },
+    netAmount: {
+        marginTop: '15px',
+    },
     placeOrderButton: {
+        marginTop: '20px',
     },
     stepperGridItem: {
     }
 });
 
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: 200,
+            width: 250,
+        },
+    },
+};
+
 function getSteps() {
     return ['Delivery', 'Payment'];
 }
 
+
 function TabContainer(props) {
     return (
-        <Typography component='div' style={{padding: 8*3}}>
+        <Typography component='div' style={{ padding: 8 * 3 }}>
             {props.children}
         </Typography>
     )
@@ -115,9 +135,10 @@ class Checkout extends Component {
     constructor() {
         super();
         this.state = {
+            customerCart: JSON.parse(sessionStorage.getItem('customer-cart')),
             activeStep: 0,
             tabValue: 0,
-            selectedExistingAddress: '',
+            selectedExistingAddress: null,
             flatBuildingNoRequired: 'dspNone',
             flatBuildingNo: '',
             localityRequired: 'dspNone',
@@ -134,7 +155,7 @@ class Checkout extends Component {
             paymentModes: [],
             radioValue: '',
             customerExistingAddressesSelection: [],
-            selectedPaymentMode: '',
+            selectedPaymentMode: null,
             openPlaceOrderMsg: false,
             orderId: '',
             placeOrderMsg: ''
@@ -142,13 +163,13 @@ class Checkout extends Component {
     };
 
     radioClickHandler = (paymentId) => {
-        this.setState({selectedPaymentMode: paymentId});
+        this.setState({ selectedPaymentMode: paymentId });
     };
 
     placeOrderOnClickHandler = () => {
         let that = this;
         let itemQuantities = this.state.customerCart.cartItems.map(
-            function(i) {
+            function (i) {
                 return {
                     'item_id': i.id,
                     'price': i.totalItemPrice,
@@ -163,13 +184,12 @@ class Checkout extends Component {
             'discount': 0,
             'item_quantities': itemQuantities,
             'payment_id': this.state.selectedPaymentMode,
-            'restaurant_id': this.state.customerCart.restaurantDetails.id
+            'restaurant_id': this.state.customerCart != null ? this.state.customerCart.restaurantDetails.id : ''
         }
         let xhrPlaceOrder = new XMLHttpRequest();
-        xhrPlaceOrder.addEventListener('readystatechange', function() {
+        xhrPlaceOrder.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 let responseText = JSON.parse(this.responseText);
-                console.log(responseText);
                 if (responseText.status === 'ORDER SUCCESSFULLY PLACED') {
                     that.setState({
                         openPlaceOrderMsg: true,
@@ -185,7 +205,7 @@ class Checkout extends Component {
                 }
             }
         })
-        xhrPlaceOrder.open('POST', 'http://localhost:8080/api/order');
+        xhrPlaceOrder.open('POST', `${this.props.baseUrl}order`);
         xhrPlaceOrder.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
         xhrPlaceOrder.setRequestHeader('Content-Type', 'application/json');
         xhrPlaceOrder.send(JSON.stringify(dataPlaceOrder));
@@ -195,8 +215,7 @@ class Checkout extends Component {
         if (reason === 'clickaway') {
             return;
         }
-
-        this.setState({openPlaceOrderMsg: false});
+        this.setState({ openPlaceOrderMsg: false });
     };
 
     existingAddressOnClickHandler = (addressId) => {
@@ -217,45 +236,59 @@ class Checkout extends Component {
         // customer existing address
         let dataCustomerAddress = null;
         let xhrCustomerAddress = new XMLHttpRequest();
-        xhrCustomerAddress.addEventListener('readystatechange', function() {
+        xhrCustomerAddress.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 that.setState({
-                    customerExistingAddresses: JSON.parse(this.responseText).addresses,
+                    customerExistingAddresses:  this.responseText != null && this.responseText.trim() !== '' ? JSON.parse(this.responseText).addresses : ''
                 });
             }
         });
-        xhrCustomerAddress.open('GET', 'http://localhost:8080/api/address/customer');
+        xhrCustomerAddress.open('GET', `${this.props.baseUrl}address/customer`);
         xhrCustomerAddress.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
         xhrCustomerAddress.send(dataCustomerAddress);
 
         // states request
         let dataStates = null;
         let xhrStates = new XMLHttpRequest();
-        xhrStates.addEventListener('readystatechange', function() {
+        xhrStates.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 that.setState({
-                    states: JSON.parse(this.responseText).states,
+                    states: this.responseText != null && this.responseText.trim() !== '' ? JSON.parse(this.responseText).states : ''
                 });
             }
         });
-        xhrStates.open('GET', 'http://localhost:8080/api/states');
+        xhrStates.open('GET', `${this.props.baseUrl}states`);
         xhrStates.send(dataStates);
 
         // payment modes request
         let dataPaymentModes = null;
         let xhrPaymentModes = new XMLHttpRequest();
-        xhrPaymentModes.addEventListener('readystatechange', function() {
+        xhrPaymentModes.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 that.setState({
-                    paymentModes: JSON.parse(this.responseText).paymentMethods,
+                    paymentModes: this.responseText != null && this.responseText.trim() !== '' ? JSON.parse(this.responseText).paymentMethods : ''
                 });
             }
         });
-        xhrPaymentModes.open('GET', 'http://localhost:8080/api/payment');
+        xhrPaymentModes.open('GET', `${this.props.baseUrl}payment`);
         xhrPaymentModes.send(dataPaymentModes);
     };
 
+    componentWillUnmount() {
+        sessionStorage.removeItem('customer-cart');
+    }
+
     stepperNextHandler = () => {
+        // do not increment step if address is not selected
+        if (this.state.activeStep === 0 && this.state.selectedExistingAddress === null) {
+            return;
+        }
+
+        // do not increment step if payment mode is not selected
+        if (this.state.activeStep === 1 && this.state.selectedPaymentMode === null) {
+            return;
+        }
+
         this.setState(preState => ({
             activeStep: preState.activeStep + 1,
         }));
@@ -274,60 +307,68 @@ class Checkout extends Component {
     };
 
     tabChangeHandler = (event, value) => {
-        this.setState({tabValue: value});
+        this.setState({ tabValue: value });
+    };
+
+    existingAddressOnClickHandler = (addressId) => {
+        this.setState({
+            [this.state.selectedExistingAddress]: 'unselect-address',
+            selectedExistingAddress: addressId,
+            [addressId]: 'select-address',
+        });
     };
 
     flatBuildingNoChangeHandler = event => {
-        this.setState({flatBuildingNo: event.target.value});
+        this.setState({ flatBuildingNo: event.target.value });
     };
 
     localityChangeHandler = event => {
-        this.setState({locality: event.target.value});
+        this.setState({ locality: event.target.value });
     };
 
     cityChangeHandler = event => {
-        this.setState({city: event.target.value});
+        this.setState({ city: event.target.value });
     };
 
     stateChangeHandler = event => {
-        this.setState({newAddressState: event.target.value});
+        this.setState({ newAddressState: event.target.value });
     };
 
     pincodeChangeHandler = event => {
-        this.setState({pincode: event.target.value});
+        this.setState({ pincode: event.target.value });
     };
 
     saveAddressOnClickHandler = () => {
         let flatBuildingNoReq = false;
         if (this.state.flatBuildingNo.trim() === '') {
-            this.setState({flatBuildingNoRequired: 'dspBlock'});
+            this.setState({ flatBuildingNoRequired: 'dspBlock' });
             flatBuildingNoReq = true;
         } else {
-            this.setState({flatBuildingNoRequired: 'dspNone'});
+            this.setState({ flatBuildingNoRequired: 'dspNone' });
         }
 
         let localityReq = false;
         if (this.state.locality.trim() === '') {
-            this.setState({localityRequired: 'dspBlock'});
+            this.setState({ localityRequired: 'dspBlock' });
             localityReq = true;
-        }   else {
-            this.setState({localityRequired: 'dspNone'});
+        } else {
+            this.setState({ localityRequired: 'dspNone' });
         }
 
         let cityReq = false;
         if (this.state.city.trim() === '') {
-            this.setState({cityRequired: 'dspBlock'});
+            this.setState({ cityRequired: 'dspBlock' });
             cityReq = true;
         } else {
-            this.setState({cityRequired: 'dspNone'});
+            this.setState({ cityRequired: 'dspNone' });
         }
 
         let stateReq = false;
         if (this.state.newAddressState.trim() === '') {
-            this.setState({stateRequired: 'dspBlock'});
+            this.setState({ stateRequired: 'dspBlock' });
             stateReq = true;
         } else {
-            this.setState({stateRequired: 'dspNone'});
+            this.setState({ stateRequired: 'dspNone' });
         }
 
         let pincodeReq = false;
@@ -338,7 +379,7 @@ class Checkout extends Component {
             });
             pincodeReq = true;
         } else {
-            this.setState({pincodeRequired: 'dspNone'});
+            this.setState({ pincodeRequired: 'dspNone' });
         }
 
         let validatePincode = new RegExp('^[1-9][0-9]{5}$');
@@ -347,6 +388,7 @@ class Checkout extends Component {
                 pincodeRequired: 'dspBlock',
                 pincodeRequiredMsg: 'Pincode must contain only numbers and must be 6 digits long'
             })
+            return;
         }
 
         if (flatBuildingNoReq || localityReq || cityReq || stateReq || pincodeReq) {
@@ -369,43 +411,43 @@ class Checkout extends Component {
         }
         let otherThis = this;
         let xhrNewAddress = new XMLHttpRequest();
-        xhrNewAddress.addEventListener('readystatechange', function() {
+        xhrNewAddress.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 let dataCustomerAddress = null;
                 let xhrCustomerAddress = new XMLHttpRequest();
-                xhrCustomerAddress.addEventListener('readystatechange', function() {
+                xhrCustomerAddress.addEventListener('readystatechange', function () {
                     if (this.readyState === 4) {
                         otherThis.setState({
                             customerExistingAddresses: JSON.parse(this.responseText).addresses,
                         });
                     }
                 });
-                xhrCustomerAddress.open('GET', 'http://localhost:8080/api/address/customer');
+                xhrCustomerAddress.open('GET', `${otherThis.props.baseUrl}address/customer`);
                 xhrCustomerAddress.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
                 xhrCustomerAddress.send(dataCustomerAddress);
             }
-        })
-        xhrNewAddress.open('POST', 'http://localhost:8080/api/address');
+        });
+        xhrNewAddress.open('POST', `${this.props.baseUrl}address`);
         xhrNewAddress.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
         xhrNewAddress.setRequestHeader('Content-Type', 'application/json');
         xhrNewAddress.send(JSON.stringify(dataNewAddress));
     };
 
     radioChangeHandler = event => {
-        this.setState({radioValue: event.target.value});
+        this.setState({ radioValue: event.target.value });
     };
 
     render() {
-        const {classes} = this.props;
+        const { classes } = this.props;
         const steps = getSteps();
-        const {activeStep} = this.state;
-        const {tabValue} = this.state;
+        const { activeStep } = this.state;
+        const { tabValue } = this.state;
         return (
             <div>
                 <Header />
                 <Grid container={true} >
-                    <Grid item={true} xs={9} className={classes.stepperGridItem}>
-                        <div className={classes.stepperRoot}>
+                    <Grid item={true} xs={9}>
+                        <div>
                             <Stepper activeStep={activeStep} orientation='vertical'>
                                 {steps.map((label, index) => (
                                     <Step key={label}>
@@ -415,44 +457,54 @@ class Checkout extends Component {
                                                 <div className={classes.tabRoot}>
                                                     <AppBar position='static'>
                                                         <Tabs value={tabValue} onChange={this.tabChangeHandler}>
-                                                            <Tab label='EXISTING ADDRESS'/>
-                                                            <Tab label='NEW ADDRESS'/>
+                                                            <Tab label='EXISTING ADDRESS' />
+                                                            <Tab label='NEW ADDRESS' />
                                                         </Tabs>
                                                     </AppBar>
                                                     {/* Existing Address */}
                                                     {tabValue === 0 &&
                                                         <TabContainer className={classes.existingAddressTabContainer}>
-                                                            <GridList className={classes.gridList} cols={3} cellHeight='auto'>
-                                                                {this.state.customerExistingAddresses.map(address => (
-                                                                    <GridListTile
-                                                                        key={'address' + address.id}
-                                                                        id={this.state[address.id] || 'unselect-address'}
-                                                                        onClick={() => this.existingAddressOnClickHandler(address.id)}
-                                                                        className={classes.existingAddressGridListTile}
-                                                                        classes={{tile: classes.existingAddressGridListTileTile}}
-                                                                    >
-                                                                        <Typography variant='subtitle1'>
-                                                                            {address.flat_building_name}
-                                                                        </Typography>
-                                                                        <Typography variant='subtitle1'>
-                                                                            {address.locality}
-                                                                        </Typography>
-                                                                        <Typography variant='subtitle1'>
-                                                                            {address.city}
-                                                                        </Typography>
-                                                                        <Typography variant='subtitle1'>
-                                                                            {address.state.state_name}
-                                                                        </Typography>
-                                                                        <Typography variant='subtitle1'>
-                                                                            {address.pincode}
-                                                                        </Typography>
-                                                                        <CheckCircleIcon
-                                                                            className={classes.existingAddressCheckCircle}
-                                                                            nativeColor={this.state[address.id] === 'select-address' ? 'green' : 'grey'}
-                                                                        />
-                                                                    </GridListTile>
-                                                                ))}
-                                                            </GridList>
+                                                            {this.state.customerExistingAddresses === null ?
+                                                                <Typography variant='h6' color='textSecondary'>
+                                                                    There are no saved addresses! You can save an address using the 'New Address' tab or using your 'Profile' menu option.
+                                                                </Typography>
+                                                                :
+                                                                <GridList
+                                                                    className={classes.gridList}
+                                                                    cols={3}
+                                                                    cellHeight='auto'
+                                                                >
+                                                                    {this.state.customerExistingAddresses.map(address => (
+                                                                        <GridListTile
+                                                                            key={'address' + address.id}
+                                                                            id={this.state[address.id] || 'unselect-address'}
+                                                                            onClick={() => this.existingAddressOnClickHandler(address.id)}
+                                                                            className={classes.existingAddressGridListTile}
+                                                                            classes={{ tile: classes.existingAddressGridListTileTile }}
+                                                                        >
+                                                                            <Typography variant='subtitle1'>
+                                                                                {address.flat_building_name}
+                                                                            </Typography>
+                                                                            <Typography variant='subtitle1'>
+                                                                                {address.locality}
+                                                                            </Typography>
+                                                                            <Typography variant='subtitle1'>
+                                                                                {address.city}
+                                                                            </Typography>
+                                                                            <Typography variant='subtitle1'>
+                                                                                {address.state.state_name}
+                                                                            </Typography>
+                                                                            <Typography variant='subtitle1'>
+                                                                                {address.pincode}
+                                                                            </Typography>
+                                                                            <CheckCircleIcon
+                                                                                className={classes.existingAddressCheckCircle}
+                                                                                nativeColor={this.state[address.id] === 'select-address' ? 'green' : 'grey'}
+                                                                            />
+                                                                        </GridListTile>
+                                                                    ))}
+                                                                </GridList>
+                                                            }
                                                         </TabContainer>
                                                     }
                                                     {/* New Address */}
@@ -467,8 +519,8 @@ class Checkout extends Component {
                                                                     value={this.state.flatBuildingNo}
                                                                     onChange={this.flatBuildingNoChangeHandler}
                                                                 />
-                                                                <FormHelperText className={this.state.flatBuildingNoRequired} error={true}>
-                                                                    <span>required</span>
+                                                                <FormHelperText className={this.state.flatBuildingNoRequired} >
+                                                                    <span class='red'>required</span>
                                                                 </FormHelperText>
                                                             </FormControl>
                                                             <br /><br />
@@ -481,8 +533,8 @@ class Checkout extends Component {
                                                                     value={this.state.locality}
                                                                     onChange={this.localityChangeHandler}
                                                                 />
-                                                                <FormHelperText className={this.state.localityRequired} error={true}>
-                                                                    <span>required</span>
+                                                                <FormHelperText className={this.state.localityRequired} >
+                                                                    <span class='red'>required</span>
                                                                 </FormHelperText>
                                                             </FormControl>
                                                             <br /><br />
@@ -495,18 +547,20 @@ class Checkout extends Component {
                                                                     value={this.state.city}
                                                                     onChange={this.cityChangeHandler}
                                                                 />
-                                                                <FormHelperText className={this.state.cityRequired} error={true}>
-                                                                    <span>required</span>
+                                                                <FormHelperText className={this.state.cityRequired} >
+                                                                    <span class='red'>required</span>
                                                                 </FormHelperText>
                                                             </FormControl>
                                                             <br /><br />
                                                             <FormControl required className={classes.newAddressFormControl}>
-                                                                <InputLabel htmlFor='newAddressstate'>State</InputLabel>
+                                                                <InputLabel htmlFor='newaddressstate'>State</InputLabel>
                                                                 <Select
-                                                                    id='newAddressstate'
+                                                                    id='newaddressstate'
                                                                     newaddressstate={this.state.newAddressState}
                                                                     value={this.state.newAddressState}
                                                                     onChange={this.stateChangeHandler}
+                                                                    className={classes.newAddressStateSelect}
+                                                                    MenuProps={MenuProps}
                                                                 >
                                                                     {this.state.states.map(state => (
                                                                         <MenuItem key={'state' + state.id} value={state.state_name}>
@@ -514,8 +568,8 @@ class Checkout extends Component {
                                                                         </MenuItem>
                                                                     ))}
                                                                 </Select>
-                                                                <FormHelperText className={this.state.stateRequired} error={true}>
-                                                                    <span>required</span>
+                                                                <FormHelperText className={this.state.stateRequired} >
+                                                                    <span class='red'>required</span>
                                                                 </FormHelperText>
                                                             </FormControl>
                                                             <br /><br />
@@ -528,8 +582,8 @@ class Checkout extends Component {
                                                                     value={this.state.pincode}
                                                                     onChange={this.pincodeChangeHandler}
                                                                 />
-                                                                <FormHelperText className={this.state.pincodeRequired} error={true}>
-                                                                    <span>{this.state.pincodeRequiredMsg}</span>
+                                                                <FormHelperText className={this.state.pincodeRequired} >
+                                                                    <span  class='red'>{this.state.pincodeRequiredMsg}</span>
                                                                 </FormHelperText>
                                                             </FormControl>
                                                             <br /><br />
@@ -575,7 +629,7 @@ class Checkout extends Component {
                                                     <Button
                                                         disabled={activeStep === 0}
                                                         onClick={this.stepperBackHandler}
-                                                        className={classes.button}
+                                                        className={classes.stepperButton}
                                                     >
                                                         Back
                                                     </Button>
@@ -583,7 +637,7 @@ class Checkout extends Component {
                                                         variant='contained'
                                                         color='primary'
                                                         onClick={this.stepperNextHandler}
-                                                        className={classes.button}
+                                                        className={classes.stepperButton}
                                                     >
                                                         {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                                                     </Button>
@@ -598,45 +652,43 @@ class Checkout extends Component {
                                     <Typography variant='h6'>
                                         View the summary &#38; place your order now!
                                     </Typography>
-                                    <Button onClick={this.stepperResetHandler} className={classes.button}>
+                                    <Button onClick={this.stepperResetHandler} className={classes.stepperButton}>
                                         CHANGE
                                     </Button>
                                 </Paper>
                             )}
                         </div>
                     </Grid>
-                    {/* cart summary */}
+                    {/* Summary */}
                     <Grid item={true} xs>
-                        <Card className={classes.summaryCard}>
+                        <Card id='summary-card'>
                             <CardContent>
                                 <Typography variant='h5'>
                                     Summary
                                 </Typography>
                                 <br />
                                 <Typography variant='h6' color='textSecondary' gutterBottom>
-                                    {this.state.customerCart.restaurantDetails.restaurant_name}
+                                    {this.state.customerCart != null && this.state.customerCart.restaurantDetails.restaurant_name}
                                 </Typography>
-                                {this.state.customerCart.cartItems.map(item => (
-                                    <div key={'item' + item.id} className="flex width-100 pd-1-per">
-                                        <div className="width-10"><i className={item.item_type === 'NON_VEG' ? 'fa fa-stop-circle-o non-veg' : 'fa fa-stop-circle-o veg'}></i></div>
-                                        <div className="width-40 capital checkout-grey-color">{item.item_name}</div>
-                                        <div className="width-10 checkout-grey-color">{item.count}</div>
-                                        <div className="width-5 checkout-grey-color"><i className='fa fa-inr'></i></div>
-                                        <div className="width-10 checkout-grey-color">{item.totalItemPrice}</div>
+                                {this.state.customerCart != null && this.state.customerCart.cartItems.map(item => (
+                                    <div key={'item' + item.id + item.category_name} className='flex width-100 pd-1-per'>
+                                        <div className='width-10'><i className={item.item_type === 'NON_VEG' ? 'fa fa-stop-circle-o non-veg' : 'fa fa-stop-circle-o veg'}></i></div>
+                                        <div className='width-50 capital checkout-color'>{item.item_name}</div>
+                                        <div className='width-25 checkout-color'>{item.count}</div>
+                                        <div className='width-4 checkout-color'><i className='fa fa-inr'></i></div>
+                                        <div className='checkout-color'>{item.totalItemPrice}.00</div>
                                     </div>
                                 ))}
-                                <Divider />
-                                {/* summary - net amount */}
-                                <div  className="width-10 checkout-grey-color"><i className='fa fa-inr'></i></div> */}
-                                <div className="pd-1-per">Net Amount 
-                                    <span className="right mr-8">
-                                        <span className="width-5 checkout-grey-color">
-                                            <i className='fa fa-inr'></i>
-                                        </span>
-                                        {this.state.customerCart.totalPrice}
+                                <Divider className={classes.summaryCardDivider} />
+                                <div className={classes.netAmount}>
+                                    Net Amount
+                                    <span className='flt-right width-5 checkout-color'>
+                                       {// <i className='fa fa-inr'></i>         
+                                       }         
+                                        <Icon icon={inrIcon}  />             
+                                            {this.state.customerCart != null ? this.state.customerCart.totalPrice : 0}.00 
                                     </span>
                                 </div>
-                                {/* summary - place order */}
                                 <Button
                                     variant='contained'
                                     color='primary'
@@ -650,8 +702,8 @@ class Checkout extends Component {
                         </Card>
                     </Grid>
                 </Grid>
-                 {/* order placed snackbar */}
-                 <Snackbar
+                {/* Placed Order */}
+                <Snackbar
                     anchorOrigin={{
                         vertical: 'bottom',
                         horizontal: 'left',
@@ -663,6 +715,16 @@ class Checkout extends Component {
                         'aria-describedby': 'message-id',
                     }}
                     message={<span id='message-id'>{this.state.placeOrderMsg}</span>}
+                    action={[
+                        <IconButton
+                            key='close'
+                            aria-label='Close'
+                            color='inherit'
+                            onClick={this.placeOrderMsgOnCloseHandler}
+                        >
+                        <CloseIcon />
+                        </IconButton>,
+                    ]}
                 />
             </div>
         );
