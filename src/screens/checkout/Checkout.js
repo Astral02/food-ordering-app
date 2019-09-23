@@ -30,6 +30,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
+import Snackbar from '@material-ui/core/Snackbar';
 
 const styles = theme => ({
     stepperRoot: {
@@ -132,8 +133,70 @@ class Checkout extends Component {
             states: [],
             paymentModes: [],
             radioValue: '',
-            customerExistingAddressesSelection: []
+            customerExistingAddressesSelection: [],
+            selectedPaymentMode: '',
+            openPlaceOrderMsg: false,
+            orderId: '',
+            placeOrderMsg: ''
         }
+    };
+
+    radioClickHandler = (paymentId) => {
+        this.setState({selectedPaymentMode: paymentId});
+    };
+
+    placeOrderOnClickHandler = () => {
+        let that = this;
+        let itemQuantities = this.state.customerCart.cartItems.map(
+            function(i) {
+                return {
+                    'item_id': i.id,
+                    'price': i.totalItemPrice,
+                    'quantity': i.count
+                }
+            }
+        );
+        let dataPlaceOrder = {
+            'address_id': this.state.selectedExistingAddress,
+            'bill': 0,
+            'coupon_id': '',
+            'discount': 0,
+            'item_quantities': itemQuantities,
+            'payment_id': this.state.selectedPaymentMode,
+            'restaurant_id': this.state.customerCart.restaurantDetails.id
+        }
+        let xhrPlaceOrder = new XMLHttpRequest();
+        xhrPlaceOrder.addEventListener('readystatechange', function() {
+            if (this.readyState === 4) {
+                let responseText = JSON.parse(this.responseText);
+                console.log(responseText);
+                if (responseText.status === 'ORDER SUCCESSFULLY PLACED') {
+                    that.setState({
+                        openPlaceOrderMsg: true,
+                        orderId: responseText.id,
+                        placeOrderMsg: `Order placed successfully! Your order ID is ${responseText.id}.`
+                    });
+                } else {
+                    that.setState({
+                        openPlaceOrderMsg: true,
+                        orderId: '',
+                        placeOrderMsg: 'Unable to place your order! Please try again!'
+                    });
+                }
+            }
+        })
+        xhrPlaceOrder.open('POST', 'http://localhost:8080/api/order');
+        xhrPlaceOrder.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
+        xhrPlaceOrder.setRequestHeader('Content-Type', 'application/json');
+        xhrPlaceOrder.send(JSON.stringify(dataPlaceOrder));
+    };
+
+    placeOrderMsgOnCloseHandler = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        this.setState({openPlaceOrderMsg: false});
     };
 
     existingAddressOnClickHandler = (addressId) => {
@@ -499,6 +562,7 @@ class Checkout extends Component {
                                                                     value={paymentMode.payment_name.toLowerCase()}
                                                                     control={<Radio />}
                                                                     label={paymentMode.payment_name}
+                                                                    onClick={() => this.radioClickHandler(paymentMode.id)}
                                                                 />
                                                             ))}
                                                         </RadioGroup>
@@ -573,13 +637,33 @@ class Checkout extends Component {
                                     </span>
                                 </div>
                                 {/* summary - place order */}
-                                <Button variant='contained' color='primary' className={classes.placeOrderButton} fullWidth={true}>
+                                <Button
+                                    variant='contained'
+                                    color='primary'
+                                    className={classes.placeOrderButton}
+                                    fullWidth={true}
+                                    onClick={this.placeOrderOnClickHandler}
+                                >
                                     Place Order
                                 </Button>
                             </CardContent>
                         </Card>
                     </Grid>
                 </Grid>
+                 {/* order placed snackbar */}
+                 <Snackbar
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                    open={this.state.openPlaceOrderMsg}
+                    autoHideDuration={5000}
+                    onClose={this.placeOrderMsgOnCloseHandler}
+                    ContentProps={{
+                        'aria-describedby': 'message-id',
+                    }}
+                    message={<span id='message-id'>{this.state.placeOrderMsg}</span>}
+                />
             </div>
         );
     }
