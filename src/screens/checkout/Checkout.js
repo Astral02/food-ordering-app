@@ -25,6 +25,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 const styles = theme => ({
     stepperRoot: {
@@ -43,6 +44,7 @@ const styles = theme => ({
     tabRoot: {
         flexGrow: 1,
         backgroundColor: theme.palette.background.paper,
+        width: '70%'
     },
     existingAddressTabContainer: {
         float: 'left',
@@ -55,11 +57,17 @@ const styles = theme => ({
     gridList: {
         flexWrap: 'nowrap',
         transform: 'translateZ(0)',
+        overflowY: 'hidden'
     },
     existingAddressGridListTile: {
-        borderStyle: 'solid',
-        borderColor: 'coral',
-        marginRight: '20px',
+        marginBottom: '50px',
+    },
+    existingAddressGridListTileTile: {
+        padding: '25px',
+    },
+    existingAddressCheckCircle: {
+        float: 'right',
+        marginRight: '10px',
     },
     radioRoot: {
         display: 'flex',
@@ -316,7 +324,7 @@ class Checkout extends Component {
                                                 <TabContainer className={classes.existingAddressTabContainer}>
                                                     <GridList className={classes.gridList} cols={3}>
                                                         {this.state.customerExistingAddresses.map(address => (
-                                                            <GridListTile key={'address' + address.id} className={classes.existingAddressGridListTile}>
+                                                            <GridListTile key={'address' + address.id} id={address.city} classes={{tile: classes.existingAddressGridListTileTile}} className={classes.existingAddressGridListTile}>
                                                                 <Typography variant='subtitle1'>
                                                                     {address.flat_building_name}
                                                                 </Typography>
@@ -332,6 +340,7 @@ class Checkout extends Component {
                                                                 <Typography variant='subtitle1'>
                                                                     {address.pincode}
                                                                 </Typography>
+                                                                <CheckCircleIcon className={classes.existingAddressCheckCircle} nativeColor='grey' />
                                                             </GridListTile>
                                                         ))}
                                                     </GridList>
