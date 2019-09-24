@@ -1,28 +1,52 @@
-.root{
-    flex-grow: 1;
+
+.noRestaurant {
+    margin-top: 15;
+    margin-left: 25;
+}
+
+.gridList {
+    margin: 'auto'
 }
 
 .card {
-    max-Width: 345;
-  }
+    width: 250;
+    max-width: 250;
+    height: 340;
+    max-height: 340;
+    margin-top: 15;
+    margin-bottom: 10;
+    margin-left: 25;
+    margin-right: 5;
+    padding-bottom: 15;
+    cursor: 'pointer';
+}
 
-  .media {
-    height: 140;
-  }
+.cardMedia {
+    height: 140
+}
 
-  .gridList {
-    flex-Wrap: 'nowrap';
-    transform: 'translateZ(0)';
-  }
+.name {
+    margin-bottom: 20
+}
 
-  .rating {
-    background-color: yellow;
-    color: white;
-    margin: 10px;
-  }
-  
-  .avgPrice {
-    color: black;
-    margin: 10px;
-  }
-  
+.ratingAvgRateDiv {
+  background-color: yellow;
+  color: white;
+  margin: 10px;
+}
+
+.ratingDiv {
+    background-color: '#EACC5E';
+    width: 100;
+    text-align: 'center';
+    float: 'left'
+}
+
+.RatingText {
+    color: 'white'
+}
+
+.avgRateText {
+    margin-left: 30;
+    float: 'right'
+}
