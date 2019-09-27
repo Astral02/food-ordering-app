@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import Home from './home/Home';
 import Details from './details/Details';
 import Checkout from './checkout/Checkout';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import Profile from './profile/Profile';
 
 class Controller extends Component {
 
