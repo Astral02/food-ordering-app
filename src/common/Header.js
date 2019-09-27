@@ -41,7 +41,7 @@ const styles = theme => ({
 
 const TabContainer = function (props) {
     return (
-        <Typography component='div' style={{padding: 0, textAlign: 'center'}}>
+        <Typography component='div' style={{ padding: 0, textAlign: 'center' }}>
             {props.children}
         </Typography>
     )
@@ -53,8 +53,10 @@ TabContainer.propTypes = {
 
 class Header extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+        this.baseUrl = 'http://localhost:8080/api/';
+        console.log("props : " + this.props.baseUrl);
         this.state = {
             modalIsOpen: false,
             value: 0,
@@ -111,19 +113,19 @@ class Header extends Component {
     }
 
     closeLoginModalHandler = () => {
-        this.setState({modalIsOpen: false});
+        this.setState({ modalIsOpen: false });
     }
 
     loginModalTabChangeHandler = (event, value) => {
-        this.setState({value});
+        this.setState({ value });
     }
 
     inputLoginContactNoChangeHandler = (event) => {
-        this.setState({loginContactNo: event.target.value});
+        this.setState({ loginContactNo: event.target.value });
     }
 
     inputLoginPasswordChangeHandler = (event) => {
-        this.setState({loginPassword: event.target.value});
+        this.setState({ loginPassword: event.target.value });
     }
 
     loginClickHandler = () => {
@@ -135,7 +137,7 @@ class Header extends Component {
             });
             contactReq = true;
         } else {
-            this.setState({loginContactNoRequired: 'dspNone'});
+            this.setState({ loginContactNoRequired: 'dspNone' });
         }
 
         let passwordReq = false;
@@ -146,7 +148,7 @@ class Header extends Component {
             });
             passwordReq = true;
         } else {
-            this.setState({loginPasswordRequired: 'dspNone'});
+            this.setState({ loginPasswordRequired: 'dspNone' });
         }
 
         let validateContact = new RegExp('^[0][1-9]{9}$|^[1-9]{9}');
@@ -164,13 +166,13 @@ class Header extends Component {
 
         let dataLogin = null;
         let xhrLogin = new XMLHttpRequest();
-        let that = this;
-        xhrLogin.addEventListener('readystatechange', function() {
+        let _this = this;
+        xhrLogin.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 let responseText = JSON.parse(this.responseText);
                 console.log(responseText);
                 if (responseText.code === 'ATH-001' || responseText.code === 'ATH-002') {
-                    that.setState({
+                    _this.setState({
                         loginPasswordRequired: 'dspBlock',
                         loginPasswordRequiredMsg: responseText.message,
                     });
@@ -181,17 +183,17 @@ class Header extends Component {
                 sessionStorage.setItem('access-token', xhrLogin.getResponseHeader('access-token'));
                 sessionStorage.setItem('user-first-name', responseText.first_name);
 
-                that.setState({
+                _this.setState({
                     loggedIn: true,
                     userFirstName: responseText.first_name,
                     openLoginSuccessMsg: true,
                 });
 
-                that.closeLoginModalHandler();
+                _this.closeLoginModalHandler();
             }
         });
-
-        xhrLogin.open('POST', '${this.props.baseUrl}customer/login');
+        console.log(this.props.baseUrl)
+        xhrLogin.open('POST', this.baseUrl + 'customer/login');
         xhrLogin.setRequestHeader('authorization', 'Basic ' + window.btoa(this.state.loginContactNo + ':' + this.state.loginPassword));
         xhrLogin.setRequestHeader('Content-Type', 'application/json');
         xhrLogin.send(dataLogin);
@@ -199,33 +201,33 @@ class Header extends Component {
 
     inputFirstNameChangeHandler = (event) => {
         console.log(event.target.value);
-        this.setState({firstName: event.target.value});
+        this.setState({ firstName: event.target.value });
     }
 
     inputLastNameChangeHandler = (event) => {
-        this.setState({lastName: event.target.value});
+        this.setState({ lastName: event.target.value });
     }
 
     inputEmailChangeHandler = (event) => {
-        this.setState({email: event.target.value});
+        this.setState({ email: event.target.value });
     }
 
     inputSignupPasswordChangeHandler = (event) => {
-        this.setState({signupPassword: event.target.value});
+        this.setState({ signupPassword: event.target.value });
     }
 
     inputSignupContactNoChangeHandler = (event) => {
-        this.setState({signupContactNo: event.target.value});
+        this.setState({ signupContactNo: event.target.value });
     }
 
     singupClickHandler = () => {
 
         let firstNameReq = false
         if (this.state.firstName === '') {
-            this.setState({firstNameRequired: 'dspBlock'});
+            this.setState({ firstNameRequired: 'dspBlock' });
             firstNameReq = true;
         } else {
-            this.setState({firstNameRequired: 'dspNone'});
+            this.setState({ firstNameRequired: 'dspNone' });
         }
 
         let emailReq = false;
@@ -236,7 +238,7 @@ class Header extends Component {
             });
             emailReq = true;
         } else {
-            this.setState({emailRequired: 'dspNone'});
+            this.setState({ emailRequired: 'dspNone' });
         }
 
         let passwordReq = false;
@@ -247,7 +249,7 @@ class Header extends Component {
             });
             passwordReq = true;
         } else {
-            this.setState({signupPasswordRequired: 'dspNone'});
+            this.setState({ signupPasswordRequired: 'dspNone' });
         }
 
         let contactNoReq = false;
@@ -258,7 +260,7 @@ class Header extends Component {
             })
             contactNoReq = true;
         } else {
-            this.setState({signupContactNoRequired: 'dspNone'});
+            this.setState({ signupContactNoRequired: 'dspNone' });
         }
 
         let validateEmail = new RegExp('^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}');
@@ -301,7 +303,7 @@ class Header extends Component {
         };
         let xhrSignup = new XMLHttpRequest();
         let that = this;
-        xhrSignup.addEventListener('readystatechange', function() {
+        xhrSignup.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 let responseText = JSON.parse(this.responseText);
                 console.log(responseText);
@@ -319,10 +321,10 @@ class Header extends Component {
                 });
             }
         })
-        //xhrSignup.open('POST', 'http://localhost:8080/api/customer/signup');
-        //xhrSignup.setRequestHeader('Content-Type', 'application/json');
-        //console.log(JSON.stringify(dataSignup));
-        //xhrSignup.send(JSON.stringify(dataSignup));
+        xhrSignup.open('POST', this.baseUrl + 'customer/signup');
+        xhrSignup.setRequestHeader('Content-Type', 'application/json');
+        console.log(JSON.stringify(dataSignup));
+        xhrSignup.send(JSON.stringify(dataSignup));
     }
 
     loginSuccessMsgOnCloseHandler = (event, reason) => {
@@ -330,7 +332,7 @@ class Header extends Component {
             return;
         }
 
-        this.setState({openLoginSuccessMsg: false});
+        this.setState({ openLoginSuccessMsg: false });
     }
 
     signupSuccessMsgOnCloseHandler = (event, reason) => {
@@ -338,7 +340,7 @@ class Header extends Component {
             return;
         }
 
-        this.setState({openSignupSuccessMsg: false});
+        this.setState({ openSignupSuccessMsg: false });
     }
 
     userMenuOnClickHandler = event => {
@@ -354,12 +356,33 @@ class Header extends Component {
     }
 
     logoutOnClickHandler = () => {
-        sessionStorage.removeItem('user-uuid');
-        sessionStorage.removeItem('access-token');
-        this.setState({
-            anchorEl: null,
-            loggedIn: false
+        let xhrPosts = new XMLHttpRequest();
+        let _this = this;
+        xhrPosts.addEventListener("readystatechange", function () {
+            if (this.readyState === 4) {
+                var data = JSON.parse(this.responseText)
+                console.log(data);
+                if (this.status === 200) {
+                    sessionStorage.removeItem('access-token');
+                    sessionStorage.removeItem('user-uuid');
+                    _this.setState({
+                        anchorEl: null,
+                        loggedIn: false
+                    });
+                   
+                }
+                else if (this.status === 401) {
+                    _this.setState({
+                        loginErrorMsg: data.message
+                    })
+                }
+
+            }
         });
+        xhrPosts.open("POST", _this.baseUrl +'customer/logout');
+        xhrPosts.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhrPosts.setRequestHeader('authorization', "Bearer " + sessionStorage.getItem('access-token'));
+        xhrPosts.send();
     }
 
 
@@ -368,7 +391,6 @@ class Header extends Component {
         const { anchorEl } = this.state;
         return (
             <div>
-
                 <header className='app-header'>
 
                     {/* header app logo */}
@@ -377,66 +399,72 @@ class Header extends Component {
                     </div>
 
                     {/* header search box */}
-                    <div className='search-box'>
-                        <Input
-                            id='search-box-input'
-                            classes={{
-                                underline: classes.searchUnderline,
-                            }}
-                            type='text'
-                            placeholder='Search by Restaurant Name'
-                            startAdornment={
-                                <InputAdornment position='start'>
-                                    <SearchIcon id='search-box-icon' />
-                                </InputAdornment>
-                            }
-                        />
-                    </div>
+                    {this.props.showSearchBox ?
+                        <div className='search-box'>
+                            <Input
+                                id='search-box-input'
+                                classes={{
+                                    underline: classes.searchUnderline,
+                                }}
+                                type='text'
+                                placeholder='Search by Restaurant Name'
+                                startAdornment={
+                                    <InputAdornment position='start'>
+                                        <SearchIcon id='search-box-icon' />
+                                    </InputAdornment>
+                                }
+                                onChange={this.props.searchHandler}
+                            />
+                        </div>
+                        : ''
+                    }
 
                     {/* header app login */}
                     {!this.state.loggedIn ?
-                            <div className='app-login'>
-                                <Button
-                                    id='login-btn'
-                                    size='medium'
-                                    variant='contained'
-                                    color='default'
-                                    onClick={this.openLoginModalHandler}
-                                >
-                                    <AccountCircleIcon id='login-btn-icon' />
-                                    LOGIN
+                        <div className={this.props.showSearchBox ? 'app-login-1' : 'app-login-2'}>
+                            <Button
+                                size='medium'
+                                variant='contained'
+                                color='default'
+                                onClick={this.openLoginModalHandler}
+                            >
+                                <AccountCircleIcon id='login-btn-icon' />
+                                LOGIN
                                 </Button>
-                            </div>
-                            :
-                            <div className='app-login'>
-                                <Button
-                                    id='login-btn'
-                                    size='medium'
-                                    aria-owns={anchorEl ? 'simple-menu' : undefined}
-                                    aria-haspopup='true'
-                                    onClick={this.userMenuOnClickHandler}
-                                >
-                                    <AccountCircleIcon id='login-btn-icon' />
-                                    {sessionStorage.getItem('user-first-name')}
-                                </Button>
-                                <Menu
-                                    id='user-menu'
-                                    anchorEl={anchorEl}
-                                    open={Boolean(anchorEl)}
-                                    onClose={this.userMenuOnCloseHandler}
-                                >
-                                      <MenuItem onClick={this.myProfileOnClickHandler}>
-                                        <Link to='/profile' style={{ textDecoration: 'none' }}>
-                                            My Profile
+                        </div>
+                        :
+                        <div className={this.props.showSearchBox ? 'app-login-1' : 'app-login-2'}>
+                            <Button
+                                id='user-btn'
+                                size='medium'
+                                aria-owns={anchorEl ? 'simple-menu' : undefined}
+                                aria-haspopup='true'
+                                onClick={this.userMenuOnClickHandler}
+                            >
+                                <AccountCircleIcon id='user-btn-icon' />
+                                {sessionStorage.getItem('user-first-name')}
+                            </Button>
+                            <Menu
+                                id='user-menu'
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={this.userMenuOnCloseHandler}
+                            >
+                                <MenuItem onClick={this.myProfileOnClickHandler}>
+                                    <Link to='/profile' style={{ textDecoration: 'none' }}>
+                                        My Profile
                                         </Link>
-                                    </MenuItem>
-                                    <MenuItem onClick={this.logoutOnClickHandler}>Logout</MenuItem>
-                                </Menu>
-                            </div>
-                        }
+                                </MenuItem>
+                                <MenuItem onClick={this.logoutOnClickHandler}>                                
+                                        Logout
+                                </MenuItem>
+                            </Menu>
+                        </div>
+                    }
 
                 </header>
 
+                {/* login and signup modal */}
                 <Modal
                     ariaHideApp={false}
                     isOpen={this.state.modalIsOpen}
@@ -444,13 +472,18 @@ class Header extends Component {
                     onRequestClose={this.closeLoginModalHandler}
                     style={loginModalStyle}
                 >
+
+                    {/* tabs */}
                     <Tabs className='login-signup-tabs' value={this.state.value} onChange={this.loginModalTabChangeHandler}>
                         <Tab label='LOGIN' />
                         <Tab label='SIGNUP' />
                     </Tabs>
-                    {/* login tab */}
+
+                    {/* login tab container */}
                     {this.state.value === 0 &&
                         <TabContainer>
+
+                            {/* login contanct no */}
                             <FormControl required>
                                 <InputLabel htmlFor='loginContactNo'>Contact No.</InputLabel>
                                 <Input
@@ -465,6 +498,8 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
+
+                            {/* login password */}
                             {/* form is used to overcome - [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) */}
                             <form>
                                 <FormControl required>
@@ -475,6 +510,7 @@ class Header extends Component {
                                         loginpassword={this.state.loginPassword}
                                         value={this.state.loginPassword}
                                         onChange={this.inputLoginPasswordChangeHandler}
+                                        autoComplete='off'
                                     />
                                     <FormHelperText className={this.state.loginPasswordRequired} error={true}>
                                         <span>{this.state.loginPasswordRequiredMsg}</span>
@@ -482,13 +518,16 @@ class Header extends Component {
                                 </FormControl>
                             </form>
                             <br /><br />
+
                             <Button id='modal-login-btn' variant='contained' color='primary' onClick={this.loginClickHandler}>LOGIN</Button>
                         </TabContainer>
                     }
 
-                    {/* signup tab  */}
+                    {/* signup tab container */}
                     {this.state.value === 1 &&
                         <TabContainer>
+
+                            {/* signup first name */}
                             <FormControl required>
                                 <InputLabel htmlFor='firstName'>First Name</InputLabel>
                                 <Input
@@ -503,6 +542,8 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
+
+                            {/* signup last name */}
                             <FormControl>
                                 <InputLabel htmlFor='lastName'>Last Name</InputLabel>
                                 <Input
@@ -514,6 +555,8 @@ class Header extends Component {
                                 />
                             </FormControl>
                             <br /><br />
+
+                            {/* signup email */}
                             <FormControl required>
                                 <InputLabel htmlFor='email'>Email</InputLabel>
                                 <Input
@@ -528,6 +571,8 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
+
+                            {/* signup password */}
                             {/* form is used to overcome - [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) */}
                             <form>
                                 <FormControl required>
@@ -538,6 +583,7 @@ class Header extends Component {
                                         signuppassword={this.state.signupPassword}
                                         value={this.state.signupPassword}
                                         onChange={this.inputSignupPasswordChangeHandler}
+                                        autoComplete='off'
                                     />
                                     <FormHelperText className={this.state.signupPasswordRequired} error={true}>
                                         <span>{this.state.signupPasswordRequiredMsg}</span>
@@ -545,6 +591,8 @@ class Header extends Component {
                                 </FormControl>
                             </form>
                             <br />
+
+                            {/* signup contact no */}
                             <FormControl required>
                                 <InputLabel htmlFor='signupContactNo'>Contact No</InputLabel>
                                 <Input
@@ -559,10 +607,12 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
+
                             <Button id='modal-signup-btn' variant='contained' color='primary' onClick={this.singupClickHandler}>SIGNUP</Button>
                         </TabContainer>
                     }
                 </Modal>
+
                 {/* login snackbar */}
                 <Snackbar
                     anchorOrigin={{
@@ -577,6 +627,7 @@ class Header extends Component {
                     }}
                     message={<span id='message-id'>Logged in successfully!</span>}
                 />
+
                 {/* signup snackbar */}
                 <Snackbar
                     anchorOrigin={{

@@ -3,9 +3,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import Controller from './screens/Controller';
+import { BrowserRouter } from 'react-router-dom'
 
 ReactDOM.render(
-    <Controller />,
+    <BrowserRouter>
+        <Controller />
+    </BrowserRouter>,
     document.getElementById('root')
 );
 
