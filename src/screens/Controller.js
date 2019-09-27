@@ -8,7 +8,7 @@ class Controller extends Component {
 
     constructor() {
         super();
-        this.baseUrl = '';
+        this.baseUrl = 'http://localhost:8080/api/';
     }
 
     render() {
@@ -16,8 +16,17 @@ class Controller extends Component {
             <Router>
                 <div className='main-container'>
                     <Route exact path='/' render={(props) => <Home {...props} baseUrl={this.baseUrl} />} />
-                    <Route path='/restaurant/:restaurantID' render={(props) => <Details {...props} baseUrl={this.baseUrl} />} />
-                    <Route path='/checkout' render={(props) => <Checkout {...props} baseUrl={this.baseUrl} />} />
+                    <Route path='/restaurant/:id' render={(props) => <Details {...props} baseUrl={this.baseUrl} />} />
+                    {/* Redirection to home page if a customer tries to go to the checkout page directly
+                    */}
+                    <Route path='/checkout' render={(props) => (
+                        sessionStorage.getItem('customer-cart') === null ? (
+                            <Redirect to='/' />
+                        ) : (
+                                <Checkout {...props} baseUrl={this.baseUrl} />
+                            )
+                    )} />
+                    <Route path='/profile' render={(props) => <Profile {...props} baseUrl={this.baseUrl} />} />
                 </div>
             </Router>
         )
