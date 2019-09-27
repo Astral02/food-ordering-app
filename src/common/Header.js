@@ -191,10 +191,10 @@ class Header extends Component {
             }
         });
 
-        //xhrLogin.open('POST', 'http://localhost:8080/api/customer/login');
-        //xhrLogin.setRequestHeader('authorization', 'Basic ' + window.btoa(this.state.loginContactNo + ':' + this.state.loginPassword));
-        //xhrLogin.setRequestHeader('Content-Type', 'application/json');
-        //xhrLogin.send(dataLogin);
+        xhrLogin.open('POST', '${this.props.baseUrl}customer/login');
+        xhrLogin.setRequestHeader('authorization', 'Basic ' + window.btoa(this.state.loginContactNo + ':' + this.state.loginPassword));
+        xhrLogin.setRequestHeader('Content-Type', 'application/json');
+        xhrLogin.send(dataLogin);
     }
 
     inputFirstNameChangeHandler = (event) => {

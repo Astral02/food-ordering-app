@@ -1,6 +1,6 @@
 import React from 'react';
 import './Details.css';
-import Header from '../../common/header/Header';
+import Header from '../../common/Header';
 
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
@@ -54,8 +54,6 @@ class Details extends React.Component {
   };
 
   componentDidMount() {
-    // let id = sessionStorage.getItem('currentRest');
-    console.log('props', this.props);
     const {
       history: {
         location: {
@@ -69,16 +67,14 @@ class Details extends React.Component {
 
   getRestaurantDetails = (id) => {
     let that = this;
-    let url = `http://localhost:8080/api/restaurant/${id}`;
+    let url = `${this.props.baseUrl}${id}`;
     return fetch(url, {
       method:'GET',
     }).then((response) => {
-      console.log('response@@@@@@@@', response);
       if (response.ok) {
         return response.json();
       }
     }).then((responseJson) => {
-      console.log('json', responseJson);
       that.setState({
         restaurant_name: responseJson.restaurant_name,
         photo_URL: responseJson.photo_URL,
@@ -106,8 +102,6 @@ class Details extends React.Component {
     } else if (!sessionStorage.getItem("loggedIn")) {
       this.handleSnackBar("Please login first!");
     }else {
-      // sessionStorage.setItem("cartItems",this.state.cartItemsList)
-      // sessionStorage.setItem("cartTotalPrice",this.state.cartTotalPrice);
       this.props.addItems(this.state.cartItemsList)
       this.props.setCartTotal(this.state.cartTotalPrice)
       this.props.history.push('/checkout');
@@ -165,7 +159,6 @@ class Details extends React.Component {
       cartItemsList: cartItemsList,
       cartTotalPrice: this.state.cartTotalPrice + cartItem.item.price,
     });
-    console.log(JSON.stringify(cartItemsList));
   }
 
   render(){
@@ -289,7 +282,6 @@ function CartItem(props) {
   const color = props.item
   && props.item.item.item_type&&props.item.item.item_type.toString()
   && props.item.item.item_type.toLowerCase() === "non_veg" ? "red" : "green";
-  console.log('prop1s', cartItem);
   return (
     <div style={{display:"flex", flexDirection:"row", width:"100%", padding:"1%"}}>
       <div style={{width:"10%", display:"flex", alignItems:"center",color: color}}><i className="fa fa-stop-circle-o" aria-hidden="true"></i></div>
@@ -307,7 +299,6 @@ function CartItem(props) {
 }
 
 function CategoryItem(props) {
-  console.log('catttttt', props);
   return (
     <div style={{padding:"3%"}}>
       <Typography variant="caption" gutterBottom style={{fontWeight:"bold", textTransform:"uppercase"}}> {props.item.category_name} </Typography>
@@ -327,11 +318,9 @@ function CategoryItem(props) {
 };
 
 function MenuItem(props) {
-  console.log('props', props);
   const color = props.item.item_type
     && props.item.item_type.toString()
     && props.item.item_type.toLowerCase() === "non_veg" ? "red" : "green";
-    console.log('props.item.item_type', props.item.item_type);
   return (
     <div style={{display:"flex", flexDirection:"row", width:"100%", paddingLeft:"1%"}}>
       <div style={{width:"5%", display:"flex", alignItems:"center", color: color}}><i className="fa fa-circle" ></i></div>
