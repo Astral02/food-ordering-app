@@ -3,7 +3,6 @@
     height: 60px;
     position: relative;
 }
-
 #fast-food-icon {
     color: white;
     margin-left: 16px;
@@ -16,7 +15,7 @@
     width: 250px;
     margin: auto;
     top: 50%;
-    transform: translateY(40%);
+    transform: translateY(50%);
 }
 
 #search-box-icon {
@@ -29,27 +28,44 @@
     width: 250px;
 }
 
-.app-login {
+.app-login-1 {
     float: right;
     margin-right: 16px;
     top: 50%;
     transform: translateY(-50%);
 }
 
+.app-login-2 {
+    float: right;
+    margin-right: 16px;
+    top: 50%;
+    transform: translateY(35%);
+}
+
 #login-btn-icon {
     margin-right: 5px;
+}
+
+#user-btn-icon {
+    margin-right: 5px;
+    color: lightgray;
+}
+
+#user-btn {
+    color: lightgray;
 }
 
 .login-signup-tabs {
     margin-bottom: 20px;
 }
 
-.dspNone {
+.dispNone {
     display: none;
 }
 
-.dspBlock {
+.dispBlock {
     display: block;
+    max-width: 194px;
 }
 
 #modal-login-btn,
@@ -57,7 +73,7 @@
     margin-top: 20px;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 800px) {
 
     .app-header {
         display: block;
@@ -76,7 +92,8 @@
         transform: none;
     }
 
-    .app-login {
+    .app-login-1,
+    .app-login-2 {
         float: none;
         margin: 16px 0 0 16px;
         transform: none;

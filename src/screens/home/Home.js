@@ -11,6 +11,9 @@ import { Icon } from '@iconify/react';
 import inrIcon from '@iconify/icons-fa/inr';
 import starO from '@iconify/icons-fa/star-o';
 import { isWidthUp } from '@material-ui/core/withWidth';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar, faRupeeSign } from '@fortawesome/free-solid-svg-icons';
+
 
 
 class Home extends Component {
@@ -19,7 +22,7 @@ class Home extends Component {
         super();
         this.state = {
             restaurants: [],
-            cards: 1,
+            cards: 2,
         }
     }
 
@@ -33,7 +36,7 @@ class Home extends Component {
             if (this.readyState === 4) {
                 that.setState({
                     restaurants: JSON.parse(this.responseText).restaurants
-                })
+                });
             }
         })
         xhrRestaurants.open('GET', `${this.props.baseUrl}restaurant`);
@@ -51,26 +54,25 @@ class Home extends Component {
     }
 
     updateCardsGridListCols = () => {
-        if (isWidthUp('xl', this.props.width)) {
-            this.setState({ cards: 6 });
-            return;
-        }
-
-        if (isWidthUp('lg', this.props.width)) {
+        if (window.innerWidth >= 1500) {
             this.setState({ cards: 5 });
             return;
         }
 
-        if (isWidthUp('md', this.props.width)) {
+        if (window.innerWidth >= 1270) {
             this.setState({ cards: 4 });
             return;
         }
-        if (isWidthUp('sm', this.props.width)) {
+
+        if (window.innerWidth >= 1000) {
+            this.setState({ cards: 3 });
+            return;
+        }
+        if (window.innerWidth >= 600) {
             this.setState({ cards: 2 });
             return;
         }
         this.setState({ cards: 1 });
-        return;
     }
 
     restaurantCardTileOnClickHandler = (restaurantId) => {
@@ -105,7 +107,10 @@ class Home extends Component {
     render() {
         return (
             <div>
-                <Header />
+                <Header
+                    showSearchBox={true}
+                    searchHandler={this.searchHandler}
+                />
                 {this.state.restaurants === null ?
                     <Typography className='noRestaurant' variant='h6'>
                         No restaurant with the given name.
@@ -123,7 +128,7 @@ class Home extends Component {
                             >
                                 <Card className='card' style={{ textDecoration: 'none' }}>
                                     <CardMedia
-                                        className='restaurantCardMedia'
+                                        className='cardMedia'
                                         image={restaurant.photo_URL}
                                         title={restaurant.restaurant_name}
                                     />
@@ -134,15 +139,15 @@ class Home extends Component {
                                         <Typography variant='subtitle1'>
                                             {restaurant.categories}
                                         </Typography>
-                                        <div className='ratingAvgRateDiv'>
-                                            <div className='ratingDiv'>
-                                                <Typography className='ratingText' variant='body2'>
-                                                    <Icon icon={starO} /> {restaurant.customer_rating} ({restaurant.number_customers_rated})
-                                                </Typography>
+                                        <div style={{ marginTop: 25, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'row', backgroundColor: "#FDD835", padding: 5, justifyContent: 'space-evenly', alignItems: 'center', width: 80 }}>
+                                                <FontAwesomeIcon icon={faStar} color="white" />
+                                                <span className="white">{restaurant.customer_rating}({restaurant.number_customers_rated})</span>
                                             </div>
-                                            <Typography className='avgRateText' variant='body2'>
-                                                <Icon icon={inrIcon} /> {restaurant.average_price} for two
-                                            </Typography>
+                                            <div>
+                                                <FontAwesomeIcon size="sm" icon={faRupeeSign} color="black" />
+                                                <span>{restaurant.average_price} for two</span>
+                                            </div>
                                         </div>
                                     </CardContent>
                                 </Card>

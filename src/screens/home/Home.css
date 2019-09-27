@@ -1,7 +1,7 @@
 
 .noRestaurant {
-    margin-top: 15;
-    margin-left: 25;
+    margin-top: 15px;
+    margin-left: 25px;
 }
 
 .gridList {
@@ -9,24 +9,24 @@
 }
 
 .card {
-    width: 250;
-    max-width: 250;
-    height: 340;
-    max-height: 340;
-    margin-top: 15;
-    margin-bottom: 10;
-    margin-left: 25;
-    margin-right: 5;
-    padding-bottom: 15;
+    width: 250px;
+    max-width: 250px;
+    height: 340px;
+    max-height: 340px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    margin-left: 25px;
+    margin-right: 5px;
+    padding-bottom: 15px;
     cursor: 'pointer';
 }
 
 .cardMedia {
-    height: 140
+    height: 140px
 }
 
 .name {
-    margin-bottom: 20
+    margin-bottom: 20px
 }
 
 .ratingAvgRateDiv {
@@ -37,7 +37,7 @@
 
 .ratingDiv {
     background-color: '#EACC5E';
-    width: 100;
+    width: 100px;
     text-align: 'center';
     float: 'left'
 }
@@ -47,6 +47,6 @@
 }
 
 .avgRateText {
-    margin-left: 30;
+    margin-left: 30px;
     float: 'right'
 }
