@@ -10,31 +10,28 @@ import Typography from '@material-ui/core/Typography';
 import 'font-awesome/css/font-awesome.min.css';
 
 class Home extends Component {
-
     constructor() {
         super();
         this.state = {
             restaurants: [],
-            cards: 2,
+            cards: 0
         }
     }
-
+    //Added unsafe to supress the warning in the chrome
     UNSAFE_componentWillMount() {
         sessionStorage.removeItem('customer-cart');
-
-        let that = this;
+        let _this = this;
         let dataRestaurants = null;
         let xhrRestaurants = new XMLHttpRequest();
         xhrRestaurants.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
-                that.setState({
+                _this.setState({
                     restaurants: JSON.parse(this.responseText).restaurants
                 });
             }
         })
-        xhrRestaurants.open('GET', `${this.props.baseUrl}restaurant`);
+        xhrRestaurants.open('GET', this.props.baseUrl +'restaurant');
         xhrRestaurants.send(dataRestaurants);
-
         this.updateCardsGridListCols();
     }
 
@@ -46,6 +43,7 @@ class Home extends Component {
         window.removeEventListener('resize', this.updateCardsGridListCols);
     }
 
+    //Update the number of cards as per screen size
     updateCardsGridListCols = () => {
         if (window.innerWidth >= 1350) {
             this.setState({ cards: 5 });
@@ -71,28 +69,28 @@ class Home extends Component {
     restaurantCardTileOnClickHandler = (restaurantId) => {
         this.props.history.push('/restaurant/' + restaurantId);
     }
-
+    //implement the search handler
     searchHandler = (event) => {
-        let that = this;
+        let _this = this;
         let dataRestaurants = null;
         let xhrRestaurants = new XMLHttpRequest();
         xhrRestaurants.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 if (!JSON.parse(this.responseText).restaurants) {
-                    that.setState({
+                    _this.setState({
                         restaurants: null,
                     })
                 } else {
-                    that.setState({
+                    _this.setState({
                         restaurants: JSON.parse(this.responseText).restaurants,
                     })
                 }
             }
         })
         if (event.target.value === '') {
-            xhrRestaurants.open('GET', `${this.props.baseUrl}restaurant`);
+            xhrRestaurants.open('GET', this.props.baseUrl + 'restaurant');
         } else {
-            xhrRestaurants.open('GET', `${this.props.baseUrl}restaurant/name/${event.target.value}`);
+            xhrRestaurants.open('GET', this.props.baseUrl + 'restaurant/name/'+event.target.value);
         }
         xhrRestaurants.send(dataRestaurants);
     }
