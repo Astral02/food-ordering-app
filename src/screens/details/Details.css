@@ -12,15 +12,15 @@
 
 .restaurant-details {
     padding: 2%;
-    width: 70%;
+    width: 69%;
 }
 
 .restaurant-image {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2%;
-    width: 30%;
+    padding: 1%;
+    width: 31%;
 }
 
 .menu-cart-section {
@@ -48,6 +48,7 @@
     }
     .restaurant-details {
         width: 100%;
+        text-align: center
     }
     .menu-cart-section {
         flex-wrap: wrap;
