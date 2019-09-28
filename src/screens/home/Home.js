@@ -7,35 +7,31 @@ import Card from '@material-ui/core/Card';
 import GridListTile from '@material-ui/core/GridListTile';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faRupeeSign } from '@fortawesome/free-solid-svg-icons';
+import 'font-awesome/css/font-awesome.min.css';
 
 class Home extends Component {
-
     constructor() {
         super();
         this.state = {
             restaurants: [],
-            cards: 2,
+            cards: 0
         }
     }
-
+    //Added unsafe to supress the warning in the chrome
     UNSAFE_componentWillMount() {
         sessionStorage.removeItem('customer-cart');
-
-        let that = this;
+        let _this = this;
         let dataRestaurants = null;
         let xhrRestaurants = new XMLHttpRequest();
         xhrRestaurants.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
-                that.setState({
+                _this.setState({
                     restaurants: JSON.parse(this.responseText).restaurants
                 });
             }
         })
-        xhrRestaurants.open('GET', `${this.props.baseUrl}restaurant`);
+        xhrRestaurants.open('GET', this.props.baseUrl +'restaurant');
         xhrRestaurants.send(dataRestaurants);
-
         this.updateCardsGridListCols();
     }
 
@@ -47,18 +43,19 @@ class Home extends Component {
         window.removeEventListener('resize', this.updateCardsGridListCols);
     }
 
+    //Update the number of cards as per screen size
     updateCardsGridListCols = () => {
-        if (window.innerWidth >= 1500) {
+        if (window.innerWidth >= 1350) {
             this.setState({ cards: 5 });
             return;
         }
 
-        if (window.innerWidth >= 1270) {
+        if (window.innerWidth >= 1100) {
             this.setState({ cards: 4 });
             return;
         }
 
-        if (window.innerWidth >= 1000) {
+        if (window.innerWidth >= 900) {
             this.setState({ cards: 3 });
             return;
         }
@@ -72,28 +69,28 @@ class Home extends Component {
     restaurantCardTileOnClickHandler = (restaurantId) => {
         this.props.history.push('/restaurant/' + restaurantId);
     }
-
+    //implement the search handler
     searchHandler = (event) => {
-        let that = this;
+        let _this = this;
         let dataRestaurants = null;
         let xhrRestaurants = new XMLHttpRequest();
         xhrRestaurants.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 if (!JSON.parse(this.responseText).restaurants) {
-                    that.setState({
+                    _this.setState({
                         restaurants: null,
                     })
                 } else {
-                    that.setState({
+                    _this.setState({
                         restaurants: JSON.parse(this.responseText).restaurants,
                     })
                 }
             }
         })
         if (event.target.value === '') {
-            xhrRestaurants.open('GET', `${this.props.baseUrl}restaurant`);
+            xhrRestaurants.open('GET', this.props.baseUrl + 'restaurant');
         } else {
-            xhrRestaurants.open('GET', `${this.props.baseUrl}restaurant/name/${event.target.value}`);
+            xhrRestaurants.open('GET', this.props.baseUrl + 'restaurant/name/'+event.target.value);
         }
         xhrRestaurants.send(dataRestaurants);
     }
@@ -126,21 +123,21 @@ class Home extends Component {
                                         image={restaurant.photo_URL}
                                         title={restaurant.restaurant_name}
                                     />
-                                    <CardContent>
-                                        <Typography className='name' gutterBottom variant='h5' component='h2'>
+                                    <CardContent className='cardContent'>
+                                        <Typography className='restaurantName' gutterBottom variant='h5' component='h2'>
                                             {restaurant.restaurant_name}
                                         </Typography>
-                                        <Typography variant='subtitle1'>
+                                        <Typography variant='subtitle1' className='categories'>
                                             {restaurant.categories}
                                         </Typography>
-                                        <div style={{ marginTop: 25, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'row', backgroundColor: "#FDD835", padding: 5, justifyContent: 'space-evenly', alignItems: 'center', width: 80 }}>
-                                                <FontAwesomeIcon icon={faStar} color="white" />
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'row', color:"white", backgroundColor: "#FDD835", padding: 5, justifyContent: 'space-evenly', alignItems: 'center', width: 80 }}>
+                                            <i className="fa fa-star" aria-hidden="true"> </i>
                                                 <span className="white">{restaurant.customer_rating}({restaurant.number_customers_rated})</span>
                                             </div>
                                             <div>
-                                                <FontAwesomeIcon size="sm" icon={faRupeeSign} color="black" />
-                                                <span>{restaurant.average_price} for two</span>
+                                            <i className="fa fa-inr" aria-hidden="true"> 
+                                                <span>{restaurant.average_price} for two</span> </i>
                                             </div>
                                         </div>
                                     </CardContent>

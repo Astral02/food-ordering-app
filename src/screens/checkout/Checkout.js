@@ -33,8 +33,6 @@ import Grid from '@material-ui/core/Grid';
 import Snackbar from '@material-ui/core/Snackbar';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import { Icon } from '@iconify/react';
-import inrIcon from '@iconify/icons-fa/inr';
 import 'font-awesome/css/font-awesome.min.css';
 
 const styles = theme => ({
@@ -118,10 +116,9 @@ function getSteps() {
     return ['Delivery', 'Payment'];
 }
 
-
 function TabContainer(props) {
     return (
-        <Typography component='div' style={{ padding: 8 * 3 }}>
+        <Typography component='div' style={{ padding: 24 }}>
             {props.children}
         </Typography>
     )
@@ -135,9 +132,7 @@ class Checkout extends Component {
 
     constructor(props) {
         super(props);
-        console.log("received: " + JSON.parse(sessionStorage.getItem('customer-cart')));
         this.state = {
-            // customerCart: JSON.parse(sessionStorage.getItem('customer-cart')),
             activeStep: 0,
             tabValue: 0,
             selectedExistingAddress: null,
@@ -163,7 +158,6 @@ class Checkout extends Component {
             placeOrderMsg: '',
             customerCart: this.props.history.location.data
         };
-        //this.customerCart = this.props.history.location.data;
     };
 
     radioClickHandler = (paymentId) => {
@@ -173,17 +167,6 @@ class Checkout extends Component {
     placeOrderOnClickHandler = () => {
         let _this = this;
         let itemQuantities = _this.state.customerCart != null && _this.state.customerCart.cartItems.map(cartItem => BuildCartItemToCreateOrder(cartItem)  );
-        
-       // _this.state.customerCart.cartItems.map(cartItem =>
-        //    function (i) {
-          //      return {
-           //         'item_id': i.id,
-            //        'price': i.price,
-             //       'quantity': i.quantity
-              //  }
-           // }
-        //);
-        console.log("items : " + itemQuantities);
         let dataPlaceOrder = {
             'address_id': this.state.selectedExistingAddress,
             'bill': parseInt(this.state.customerCart.totalPrice),
@@ -201,7 +184,7 @@ class Checkout extends Component {
                     _this.setState({
                         openPlaceOrderMsg: true,
                         orderId: responseText.id,
-                        placeOrderMsg: `Order placed successfully! Your order ID is ${responseText.id}.`
+                        placeOrderMsg: 'Order placed successfully! Your order ID is ' + responseText.id ,
                     });
                 } else {
                     _this.setState({
@@ -212,7 +195,7 @@ class Checkout extends Component {
                 }
             }
         })
-        xhrPlaceOrder.open('POST', `${this.props.baseUrl}order`);
+        xhrPlaceOrder.open('POST', this.props.baseUrl + 'order');
         xhrPlaceOrder.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
         xhrPlaceOrder.setRequestHeader('Content-Type', 'application/json');
         xhrPlaceOrder.send(JSON.stringify(dataPlaceOrder));
@@ -237,23 +220,21 @@ class Checkout extends Component {
         activeStep: 0,
     };
 
-    componentWillMount() {
-        let that = this;
-        console.log("received: will mount" + JSON.parse(sessionStorage.getItem('customer-cart')));
-        console.log("state: " + this.state)
-
+    //added UNSAFE to avoid the warning in chrome
+    UNSAFE_componentWillMount () {
+        let _this = this;
 
         // customer existing address
         let dataCustomerAddress = null;
         let xhrCustomerAddress = new XMLHttpRequest();
         xhrCustomerAddress.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
-                that.setState({
+                _this.setState({
                     customerExistingAddresses: this.responseText != null && this.responseText.trim() !== '' ? JSON.parse(this.responseText).addresses : ''
                 });
             }
         });
-        xhrCustomerAddress.open('GET', `${this.props.baseUrl}address/customer`);
+        xhrCustomerAddress.open('GET', this.props.baseUrl + 'address/customer');
         xhrCustomerAddress.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
         xhrCustomerAddress.send(dataCustomerAddress);
 
@@ -262,12 +243,12 @@ class Checkout extends Component {
         let xhrStates = new XMLHttpRequest();
         xhrStates.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
-                that.setState({
+                _this.setState({
                     states: this.responseText != null && this.responseText.trim() !== '' ? JSON.parse(this.responseText).states : ''
                 });
             }
         });
-        xhrStates.open('GET', `${this.props.baseUrl}states`);
+        xhrStates.open('GET', this.props.baseUrl + 'states');
         xhrStates.send(dataStates);
 
         // payment modes request
@@ -275,12 +256,12 @@ class Checkout extends Component {
         let xhrPaymentModes = new XMLHttpRequest();
         xhrPaymentModes.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
-                that.setState({
+                _this.setState({
                     paymentModes: this.responseText != null && this.responseText.trim() !== '' ? JSON.parse(this.responseText).paymentMethods : ''
                 });
             }
         });
-        xhrPaymentModes.open('GET', `${this.props.baseUrl}payment`);
+        xhrPaymentModes.open('GET', this.props.baseUrl + 'payment');
         xhrPaymentModes.send(dataPaymentModes);
     };
 
@@ -289,16 +270,12 @@ class Checkout extends Component {
     }
 
     stepperNextHandler = () => {
-        // do not increment step if address is not selected
         if (this.state.activeStep === 0 && this.state.selectedExistingAddress === null) {
             return;
         }
-
-        // do not increment step if payment mode is not selected
         if (this.state.activeStep === 1 && this.state.selectedPaymentMode === null) {
             return;
         }
-
         this.setState(preState => ({
             activeStep: preState.activeStep + 1,
         }));
@@ -412,6 +389,7 @@ class Checkout extends Component {
             }
         }
 
+        //add new address
         let dataNewAddress = {
             'city': this.state.city,
             'flat_building_name': this.state.flatBuildingNo,
@@ -419,7 +397,7 @@ class Checkout extends Component {
             'pincode': this.state.pincode,
             'state_uuid': stateUUID
         }
-        let otherThis = this;
+        let _this = this;
         let xhrNewAddress = new XMLHttpRequest();
         xhrNewAddress.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
@@ -427,17 +405,17 @@ class Checkout extends Component {
                 let xhrCustomerAddress = new XMLHttpRequest();
                 xhrCustomerAddress.addEventListener('readystatechange', function () {
                     if (this.readyState === 4) {
-                        otherThis.setState({
+                        _this.setState({
                             customerExistingAddresses: JSON.parse(this.responseText).addresses,
                         });
                     }
                 });
-                xhrCustomerAddress.open('GET', `${otherThis.props.baseUrl}address/customer`);
+                xhrCustomerAddress.open('GET', _this.props.baseUrl + 'address/customer');
                 xhrCustomerAddress.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
                 xhrCustomerAddress.send(dataCustomerAddress);
             }
         });
-        xhrNewAddress.open('POST', `${this.props.baseUrl}address`);
+        xhrNewAddress.open('POST', this.props.baseUrl + 'address');
         xhrNewAddress.setRequestHeader('authorization', 'Bearer ' + sessionStorage.getItem('access-token'));
         xhrNewAddress.setRequestHeader('Content-Type', 'application/json');
         xhrNewAddress.send(JSON.stringify(dataNewAddress));
@@ -452,7 +430,6 @@ class Checkout extends Component {
         const steps = getSteps();
         const { activeStep } = this.state;
         const { tabValue } = this.state;
-        const { data } = this.state.customerCart.cartItems;
         return (
             <div>
                 <Header />
@@ -510,7 +487,7 @@ class Checkout extends Component {
                                                                             </Typography>
                                                                             <CheckCircleIcon
                                                                                 className={classes.existingAddressCheckCircle}
-                                                                                nativeColor={this.state[address.id] === 'select-address' ? 'green' : 'grey'}
+                                                                                nativecolor={this.state[address.id] === 'select-address' ? 'green' : 'grey'}
                                                                             />
                                                                         </GridListTile>
                                                                     ))}
@@ -683,28 +660,15 @@ class Checkout extends Component {
                                 </Typography>
                                 {/* items in cart */}
                                 {this.state.customerCart != null && this.state.customerCart.cartItems.map(cartItem =>
-                                    <div key={cartItem.id}>
+                                    <div key={cartItem.item.id}>
                                         <CartItem item={cartItem} this={this} />
                                     </div>
                                 )}
-                               {/*} {this.state.customerCart != null && this.state.customerCart.cartItems.map(item => (
-                                    <div key={'item' + item.id + item.category_name} className='flex width-100 pd-1-per'>
-                                        <div className='width-10'><i className={item.item_type === 'NON_VEG' ? 'fa fa-stop-circle-o non-veg' : 'fa fa-stop-circle-o veg'}></i></div>
-                                        <div className='width-50 capital checkout-color'>{item.item_name}</div>
-                                        <div className='width-25 checkout-color'>{item.quantity}</div>
-                                        <div className='width-4 checkout-color'><i className='fa fa-inr'></i></div>
-                                        <div className='checkout-color'>{item.price.toFixed(2)}</div>
-                                    </div>
-                                ))}
-                                */
-                               }
                                 <Divider className={classes.summaryCardDivider} />
                                 <div className={classes.netAmount}>
                                     Net Amount
                                     <span className='flt-right width-5 checkout-color'>
-                                        {// <i className='fa fa-inr'></i>         
-                                        }
-                                        <Icon icon={inrIcon} />
+                                        <i className='fa fa-inr'></i> 
                                         {this.state.customerCart != null ? this.state.customerCart.totalPrice : 0}.00
                                     </span>
                                 </div>
@@ -752,6 +716,7 @@ class Checkout extends Component {
 Checkout.propTypes = {
     classes: PropTypes.object,
 };
+//render the cart item
 function CartItem(props) {
     const cartItem = props.item;
     const color = props.item
@@ -766,6 +731,7 @@ function CartItem(props) {
         </div>
     )
 }
+//build the cart item to create order
 function BuildCartItemToCreateOrder(props) {
     return ( {
         'item_id': props.item.id ,

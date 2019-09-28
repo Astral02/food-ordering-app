@@ -20,6 +20,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from 'react-router-dom';
 
+/*  Login Modal Style */
 const loginModalStyle = {
     content: {
         top: '50%',
@@ -31,6 +32,7 @@ const loginModalStyle = {
     }
 };
 
+/* Style for underline of the search box when clicked */
 const styles = theme => ({
     searchUnderline: {
         '&:after': {
@@ -38,7 +40,7 @@ const styles = theme => ({
         },
     },
 });
-
+/* Tab Style */
 const TabContainer = function (props) {
     return (
         <Typography component='div' style={{ padding: 0, textAlign: 'center' }}>
@@ -52,11 +54,9 @@ TabContainer.propTypes = {
 }
 
 class Header extends Component {
-
     constructor(props) {
         super(props);
         this.baseUrl = 'http://localhost:8080/api/';
-        console.log("props : " + this.props.baseUrl);
         this.state = {
             modalIsOpen: false,
             value: 0,
@@ -127,7 +127,7 @@ class Header extends Component {
     inputLoginPasswordChangeHandler = (event) => {
         this.setState({ loginPassword: event.target.value });
     }
-
+/** Login Click Handler */
     loginClickHandler = () => {
         let contactReq = false;
         if (this.state.loginContactNo === '') {
@@ -170,7 +170,6 @@ class Header extends Component {
         xhrLogin.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 let responseText = JSON.parse(this.responseText);
-                console.log(responseText);
                 if (responseText.code === 'ATH-001' || responseText.code === 'ATH-002') {
                     _this.setState({
                         loginPasswordRequired: 'dspBlock',
@@ -192,7 +191,6 @@ class Header extends Component {
                 _this.closeLoginModalHandler();
             }
         });
-        console.log(this.props.baseUrl)
         xhrLogin.open('POST', this.baseUrl + 'customer/login');
         xhrLogin.setRequestHeader('authorization', 'Basic ' + window.btoa(this.state.loginContactNo + ':' + this.state.loginPassword));
         xhrLogin.setRequestHeader('Content-Type', 'application/json');
@@ -200,7 +198,6 @@ class Header extends Component {
     }
 
     inputFirstNameChangeHandler = (event) => {
-        console.log(event.target.value);
         this.setState({ firstName: event.target.value });
     }
 
@@ -219,9 +216,8 @@ class Header extends Component {
     inputSignupContactNoChangeHandler = (event) => {
         this.setState({ signupContactNo: event.target.value });
     }
-
+    /** Signup Handler */
     singupClickHandler = () => {
-
         let firstNameReq = false
         if (this.state.firstName === '') {
             this.setState({ firstNameRequired: 'dspBlock' });
@@ -306,7 +302,6 @@ class Header extends Component {
         xhrSignup.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 let responseText = JSON.parse(this.responseText);
-                console.log(responseText);
                 if (responseText.code === 'SGR-001') {
                     that.setState({
                         signupContactNoRequired: 'dspBlock',
@@ -323,7 +318,6 @@ class Header extends Component {
         })
         xhrSignup.open('POST', this.baseUrl + 'customer/signup');
         xhrSignup.setRequestHeader('Content-Type', 'application/json');
-        console.log(JSON.stringify(dataSignup));
         xhrSignup.send(JSON.stringify(dataSignup));
     }
 
@@ -354,7 +348,7 @@ class Header extends Component {
     myProfileOnClickHandler = () => {
         this.setState({ anchorEl: null });
     }
-
+    /** Remove the session data on logout */
     logoutOnClickHandler = () => {
         let xhrPosts = new XMLHttpRequest();
         let _this = this;
@@ -392,12 +386,10 @@ class Header extends Component {
         return (
             <div>
                 <header className='app-header'>
-
                     {/* header app logo */}
                     <div className='app-logo'>
                         <FastFoodIcon id='fast-food-icon' fontSize='large' />
                     </div>
-
                     {/* header search box */}
                     {this.props.showSearchBox ?
                         <div className='search-box'>
@@ -461,9 +453,7 @@ class Header extends Component {
                             </Menu>
                         </div>
                     }
-
                 </header>
-
                 {/* login and signup modal */}
                 <Modal
                     ariaHideApp={false}
@@ -472,17 +462,13 @@ class Header extends Component {
                     onRequestClose={this.closeLoginModalHandler}
                     style={loginModalStyle}
                 >
-
-                    {/* tabs */}
                     <Tabs className='login-signup-tabs' value={this.state.value} onChange={this.loginModalTabChangeHandler}>
                         <Tab label='LOGIN' />
                         <Tab label='SIGNUP' />
                     </Tabs>
-
                     {/* login tab container */}
                     {this.state.value === 0 &&
                         <TabContainer>
-
                             {/* login contanct no */}
                             <FormControl required>
                                 <InputLabel htmlFor='loginContactNo'>Contact No.</InputLabel>
@@ -498,9 +484,7 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
-
                             {/* login password */}
-                            {/* form is used to overcome - [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) */}
                             <form>
                                 <FormControl required>
                                     <InputLabel htmlFor='loginPassword'>Password</InputLabel>
@@ -513,20 +497,17 @@ class Header extends Component {
                                         autoComplete='off'
                                     />
                                     <FormHelperText className={this.state.loginPasswordRequired} error={true}>
-                                        <span>{this.state.loginPasswordRequiredMsg}</span>
+                                        <span className='errorMessage'>{this.state.loginPasswordRequiredMsg}</span>
                                     </FormHelperText>
                                 </FormControl>
                             </form>
                             <br /><br />
-
                             <Button id='modal-login-btn' variant='contained' color='primary' onClick={this.loginClickHandler}>LOGIN</Button>
                         </TabContainer>
                     }
-
                     {/* signup tab container */}
                     {this.state.value === 1 &&
                         <TabContainer>
-
                             {/* signup first name */}
                             <FormControl required>
                                 <InputLabel htmlFor='firstName'>First Name</InputLabel>
@@ -542,7 +523,6 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
-
                             {/* signup last name */}
                             <FormControl>
                                 <InputLabel htmlFor='lastName'>Last Name</InputLabel>
@@ -555,7 +535,6 @@ class Header extends Component {
                                 />
                             </FormControl>
                             <br /><br />
-
                             {/* signup email */}
                             <FormControl required>
                                 <InputLabel htmlFor='email'>Email</InputLabel>
@@ -571,9 +550,7 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
-
                             {/* signup password */}
-                            {/* form is used to overcome - [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) */}
                             <form>
                                 <FormControl required>
                                     <InputLabel htmlFor='signupPassword'>Password</InputLabel>
@@ -591,7 +568,6 @@ class Header extends Component {
                                 </FormControl>
                             </form>
                             <br />
-
                             {/* signup contact no */}
                             <FormControl required>
                                 <InputLabel htmlFor='signupContactNo'>Contact No</InputLabel>
@@ -607,12 +583,10 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
-
                             <Button id='modal-signup-btn' variant='contained' color='primary' onClick={this.singupClickHandler}>SIGNUP</Button>
                         </TabContainer>
                     }
                 </Modal>
-
                 {/* login snackbar */}
                 <Snackbar
                     anchorOrigin={{
@@ -620,14 +594,13 @@ class Header extends Component {
                         horizontal: 'left',
                     }}
                     open={this.state.openLoginSuccessMsg}
-                    autoHideDuration={4000}
+                    autoHideDuration={5000}
                     onClose={this.loginSuccessMsgOnCloseHandler}
                     ContentProps={{
                         'aria-describedby': 'message-id',
                     }}
                     message={<span id='message-id'>Logged in successfully!</span>}
                 />
-
                 {/* signup snackbar */}
                 <Snackbar
                     anchorOrigin={{
@@ -635,17 +608,15 @@ class Header extends Component {
                         horizontal: 'left',
                     }}
                     open={this.state.openSignupSuccessMsg}
-                    autoHideDuration={4000}
+                    autoHideDuration={5000}
                     onClose={this.signupSuccessMsgOnCloseHandler}
                     ContentProps={{
                         'aria-describedby': 'message-id',
                     }}
                     message={<span id='message-id'>Registered successfully! Please login now!</span>}
                 />
-
             </div>
         )
     }
 }
-
 export default withStyles(styles)(Header);
