@@ -35,6 +35,7 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import { Icon } from '@iconify/react';
 import inrIcon from '@iconify/icons-fa/inr';
+import 'font-awesome/css/font-awesome.min.css';
 
 const styles = theme => ({
     stepperButton: {
@@ -132,10 +133,11 @@ TabContainer.propTypes = {
 
 class Checkout extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+        console.log("received: " + JSON.parse(sessionStorage.getItem('customer-cart')));
         this.state = {
-            customerCart: JSON.parse(sessionStorage.getItem('customer-cart')),
+            // customerCart: JSON.parse(sessionStorage.getItem('customer-cart')),
             activeStep: 0,
             tabValue: 0,
             selectedExistingAddress: null,
@@ -158,8 +160,10 @@ class Checkout extends Component {
             selectedPaymentMode: null,
             openPlaceOrderMsg: false,
             orderId: '',
-            placeOrderMsg: ''
-        }
+            placeOrderMsg: '',
+            customerCart: this.props.history.location.data
+        };
+        //this.customerCart = this.props.history.location.data;
     };
 
     radioClickHandler = (paymentId) => {
@@ -167,19 +171,22 @@ class Checkout extends Component {
     };
 
     placeOrderOnClickHandler = () => {
-        let that = this;
-        let itemQuantities = this.state.customerCart.cartItems.map(
-            function (i) {
-                return {
-                    'item_id': i.id,
-                    'price': i.totalItemPrice,
-                    'quantity': i.count
-                }
-            }
-        );
+        let _this = this;
+        let itemQuantities = _this.state.customerCart != null && _this.state.customerCart.cartItems.map(cartItem => BuildCartItemToCreateOrder(cartItem)  );
+        
+       // _this.state.customerCart.cartItems.map(cartItem =>
+        //    function (i) {
+          //      return {
+           //         'item_id': i.id,
+            //        'price': i.price,
+             //       'quantity': i.quantity
+              //  }
+           // }
+        //);
+        console.log("items : " + itemQuantities);
         let dataPlaceOrder = {
             'address_id': this.state.selectedExistingAddress,
-            'bill': 0,
+            'bill': parseInt(this.state.customerCart.totalPrice),
             'coupon_id': '',
             'discount': 0,
             'item_quantities': itemQuantities,
@@ -191,13 +198,13 @@ class Checkout extends Component {
             if (this.readyState === 4) {
                 let responseText = JSON.parse(this.responseText);
                 if (responseText.status === 'ORDER SUCCESSFULLY PLACED') {
-                    that.setState({
+                    _this.setState({
                         openPlaceOrderMsg: true,
                         orderId: responseText.id,
                         placeOrderMsg: `Order placed successfully! Your order ID is ${responseText.id}.`
                     });
                 } else {
-                    that.setState({
+                    _this.setState({
                         openPlaceOrderMsg: true,
                         orderId: '',
                         placeOrderMsg: 'Unable to place your order! Please try again!'
@@ -232,6 +239,9 @@ class Checkout extends Component {
 
     componentWillMount() {
         let that = this;
+        console.log("received: will mount" + JSON.parse(sessionStorage.getItem('customer-cart')));
+        console.log("state: " + this.state)
+
 
         // customer existing address
         let dataCustomerAddress = null;
@@ -239,7 +249,7 @@ class Checkout extends Component {
         xhrCustomerAddress.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 that.setState({
-                    customerExistingAddresses:  this.responseText != null && this.responseText.trim() !== '' ? JSON.parse(this.responseText).addresses : ''
+                    customerExistingAddresses: this.responseText != null && this.responseText.trim() !== '' ? JSON.parse(this.responseText).addresses : ''
                 });
             }
         });
@@ -442,6 +452,7 @@ class Checkout extends Component {
         const steps = getSteps();
         const { activeStep } = this.state;
         const { tabValue } = this.state;
+        const { data } = this.state.customerCart.cartItems;
         return (
             <div>
                 <Header />
@@ -583,7 +594,7 @@ class Checkout extends Component {
                                                                     onChange={this.pincodeChangeHandler}
                                                                 />
                                                                 <FormHelperText className={this.state.pincodeRequired} >
-                                                                    <span  class='red'>{this.state.pincodeRequiredMsg}</span>
+                                                                    <span class='red'>{this.state.pincodeRequiredMsg}</span>
                                                                 </FormHelperText>
                                                             </FormControl>
                                                             <br /><br />
@@ -670,23 +681,31 @@ class Checkout extends Component {
                                 <Typography variant='h6' color='textSecondary' gutterBottom>
                                     {this.state.customerCart != null && this.state.customerCart.restaurantDetails.restaurant_name}
                                 </Typography>
-                                {this.state.customerCart != null && this.state.customerCart.cartItems.map(item => (
+                                {/* items in cart */}
+                                {this.state.customerCart != null && this.state.customerCart.cartItems.map(cartItem =>
+                                    <div key={cartItem.id}>
+                                        <CartItem item={cartItem} this={this} />
+                                    </div>
+                                )}
+                               {/*} {this.state.customerCart != null && this.state.customerCart.cartItems.map(item => (
                                     <div key={'item' + item.id + item.category_name} className='flex width-100 pd-1-per'>
                                         <div className='width-10'><i className={item.item_type === 'NON_VEG' ? 'fa fa-stop-circle-o non-veg' : 'fa fa-stop-circle-o veg'}></i></div>
                                         <div className='width-50 capital checkout-color'>{item.item_name}</div>
-                                        <div className='width-25 checkout-color'>{item.count}</div>
+                                        <div className='width-25 checkout-color'>{item.quantity}</div>
                                         <div className='width-4 checkout-color'><i className='fa fa-inr'></i></div>
-                                        <div className='checkout-color'>{item.totalItemPrice}.00</div>
+                                        <div className='checkout-color'>{item.price.toFixed(2)}</div>
                                     </div>
                                 ))}
+                                */
+                               }
                                 <Divider className={classes.summaryCardDivider} />
                                 <div className={classes.netAmount}>
                                     Net Amount
                                     <span className='flt-right width-5 checkout-color'>
-                                       {// <i className='fa fa-inr'></i>         
-                                       }         
-                                        <Icon icon={inrIcon}  />             
-                                            {this.state.customerCart != null ? this.state.customerCart.totalPrice : 0}.00 
+                                        {// <i className='fa fa-inr'></i>         
+                                        }
+                                        <Icon icon={inrIcon} />
+                                        {this.state.customerCart != null ? this.state.customerCart.totalPrice : 0}.00
                                     </span>
                                 </div>
                                 <Button
@@ -722,7 +741,7 @@ class Checkout extends Component {
                             color='inherit'
                             onClick={this.placeOrderMsgOnCloseHandler}
                         >
-                        <CloseIcon />
+                            <CloseIcon />
                         </IconButton>,
                     ]}
                 />
@@ -733,4 +752,25 @@ class Checkout extends Component {
 Checkout.propTypes = {
     classes: PropTypes.object,
 };
+function CartItem(props) {
+    const cartItem = props.item;
+    const color = props.item
+        && props.item.item.item_type && props.item.item.item_type.toString()
+        && props.item.item.item_type.toLowerCase() === "non_veg" ? "red" : "green";
+    return (
+        <div style={{ display: "flex", flexDirection: "row", width: "100%", padding: "1%" }}>
+            <div style={{ display: "flex", width: "10%", alignItems: "center", color: color }}><i className="fa fa-stop-circle-o" aria-hidden="true"></i></div>
+            <div style={{ display: "flex", width: "50%", alignItems: "center", textTransform: "capitalize" }}><span style={{ color: "grey" }}> {cartItem.item.item_name} </span></div>
+            <div style={{ display: "flex", width: "10%", alignItems: "center" , justifyContent: "flex-end"}}> {cartItem.quantity} </div>
+            <div style={{ display: "flex", width: "40%", alignItems: "center" , justifyContent: "flex-end"}}><i className="fa fa-inr" aria-hidden="true"><span style={{ color: "grey"}}> {cartItem.item.price.toFixed(2)} </span></i></div>
+        </div>
+    )
+}
+function BuildCartItemToCreateOrder(props) {
+    return ( {
+        'item_id': props.item.id ,
+        'price':parseInt(props.item.price) ,
+        'quantity': props.quantity }
+    ) ;
+}
 export default withStyles(styles)(Checkout);
