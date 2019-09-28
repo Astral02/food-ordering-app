@@ -263,7 +263,7 @@ class Header extends Component {
             this.setState({ signupContactNoRequired: 'dspNone' });
         }
 
-        let validateEmail = new RegExp('^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}');
+        let validateEmail = new RegExp('^[a-zA-Z0-9_+&*-]+(?:.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+.)+[a-zA-Z]{2,7}');
         if (emailReq === false && validateEmail.test(this.state.email) === false) {
             this.setState({
                 emailRequired: 'dspBlock',
