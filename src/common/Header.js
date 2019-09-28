@@ -56,7 +56,6 @@ class Header extends Component {
     constructor(props) {
         super(props);
         this.baseUrl = 'http://localhost:8080/api/';
-        console.log("props : " + this.props.baseUrl);
         this.state = {
             modalIsOpen: false,
             value: 0,
@@ -170,7 +169,6 @@ class Header extends Component {
         xhrLogin.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 let responseText = JSON.parse(this.responseText);
-                console.log(responseText);
                 if (responseText.code === 'ATH-001' || responseText.code === 'ATH-002') {
                     _this.setState({
                         loginPasswordRequired: 'dspBlock',
@@ -192,7 +190,6 @@ class Header extends Component {
                 _this.closeLoginModalHandler();
             }
         });
-        console.log(this.props.baseUrl)
         xhrLogin.open('POST', this.baseUrl + 'customer/login');
         xhrLogin.setRequestHeader('authorization', 'Basic ' + window.btoa(this.state.loginContactNo + ':' + this.state.loginPassword));
         xhrLogin.setRequestHeader('Content-Type', 'application/json');
@@ -200,7 +197,6 @@ class Header extends Component {
     }
 
     inputFirstNameChangeHandler = (event) => {
-        console.log(event.target.value);
         this.setState({ firstName: event.target.value });
     }
 
@@ -306,7 +302,6 @@ class Header extends Component {
         xhrSignup.addEventListener('readystatechange', function () {
             if (this.readyState === 4) {
                 let responseText = JSON.parse(this.responseText);
-                console.log(responseText);
                 if (responseText.code === 'SGR-001') {
                     that.setState({
                         signupContactNoRequired: 'dspBlock',
@@ -323,7 +318,6 @@ class Header extends Component {
         })
         xhrSignup.open('POST', this.baseUrl + 'customer/signup');
         xhrSignup.setRequestHeader('Content-Type', 'application/json');
-        console.log(JSON.stringify(dataSignup));
         xhrSignup.send(JSON.stringify(dataSignup));
     }
 
@@ -361,7 +355,6 @@ class Header extends Component {
         xhrPosts.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
                 var data = JSON.parse(this.responseText)
-                console.log(data);
                 if (this.status === 200) {
                     sessionStorage.removeItem('access-token');
                     sessionStorage.removeItem('user-uuid');

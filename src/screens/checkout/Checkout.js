@@ -33,8 +33,6 @@ import Grid from '@material-ui/core/Grid';
 import Snackbar from '@material-ui/core/Snackbar';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import { Icon } from '@iconify/react';
-import inrIcon from '@iconify/icons-fa/inr';
 import 'font-awesome/css/font-awesome.min.css';
 
 const styles = theme => ({
@@ -135,9 +133,7 @@ class Checkout extends Component {
 
     constructor(props) {
         super(props);
-        console.log("received: " + JSON.parse(sessionStorage.getItem('customer-cart')));
         this.state = {
-            // customerCart: JSON.parse(sessionStorage.getItem('customer-cart')),
             activeStep: 0,
             tabValue: 0,
             selectedExistingAddress: null,
@@ -183,7 +179,6 @@ class Checkout extends Component {
               //  }
            // }
         //);
-        console.log("items : " + itemQuantities);
         let dataPlaceOrder = {
             'address_id': this.state.selectedExistingAddress,
             'bill': parseInt(this.state.customerCart.totalPrice),
@@ -239,9 +234,6 @@ class Checkout extends Component {
 
     componentWillMount() {
         let that = this;
-        console.log("received: will mount" + JSON.parse(sessionStorage.getItem('customer-cart')));
-        console.log("state: " + this.state)
-
 
         // customer existing address
         let dataCustomerAddress = null;
@@ -452,7 +444,6 @@ class Checkout extends Component {
         const steps = getSteps();
         const { activeStep } = this.state;
         const { tabValue } = this.state;
-        const { data } = this.state.customerCart.cartItems;
         return (
             <div>
                 <Header />
@@ -702,9 +693,7 @@ class Checkout extends Component {
                                 <div className={classes.netAmount}>
                                     Net Amount
                                     <span className='flt-right width-5 checkout-color'>
-                                        {// <i className='fa fa-inr'></i>         
-                                        }
-                                        <Icon icon={inrIcon} />
+                                        <i className='fa fa-inr'></i> 
                                         {this.state.customerCart != null ? this.state.customerCart.totalPrice : 0}.00
                                     </span>
                                 </div>
