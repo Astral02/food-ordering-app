@@ -7,14 +7,8 @@ import Card from '@material-ui/core/Card';
 import GridListTile from '@material-ui/core/GridListTile';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import { Icon } from '@iconify/react';
-import inrIcon from '@iconify/icons-fa/inr';
-import starO from '@iconify/icons-fa/star-o';
-import { isWidthUp } from '@material-ui/core/withWidth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faRupeeSign } from '@fortawesome/free-solid-svg-icons';
-
-
 
 class Home extends Component {
 
