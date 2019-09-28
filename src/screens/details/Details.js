@@ -14,26 +14,15 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Snackbar from '@material-ui/core/Snackbar';
 import CloseIcon from '@material-ui/icons/Close';
-
+import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
   card: {
     minWidth: 275,
-  },
-  bullet: {
-    display: 'inline-block',
-    margin: '0 2px'
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
+  }
 };
 
 class Details extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -90,27 +79,22 @@ class Details extends React.Component {
       console.log('error getting data', error);
     });
   };
-
+  //handle sanckbar
   handleSnackBar = (message) => {
     this.setState({
       snackbarOpen: !this.state.snackbarOpen,
       snackbarMessage: message,
     });
   }
-
+  //handle checkout 
   checkoutHandler = () => {
     if (this.state.cartItems === 0) {
       this.handleSnackBar("Please add an item to your cart!");
     } else if (!sessionStorage.getItem("access-token")) {
       this.handleSnackBar("Please login first!");
     } else {
-      //this.props.setData({ cartItemsList : this.state.cartItemsList});
-      //this.props.setCartTotal(this.state.cartTotalPrice)
-      //this.props.history.push('/checkout');
-
       let customerCart = {
         restaurantDetails: {
-          // 'address': this.state.address,
           'average_price': this.state.average_price,
           'categories': this.state.categories,
           'customer_rating': this.state.customer_rating,
@@ -122,17 +106,14 @@ class Details extends React.Component {
         cartItems: this.state.cartItemsList,
         totalPrice: this.state.cartTotalPrice
       };
-      sessionStorage.setItem('customer-cart', JSON.stringify(customerCart));
-      //this.props.setData({ 'customer-cart': this.state.cartItemsList });
       this.props.history.push({
         pathname: '/checkout',
         data: customerCart,
       });
-
-
     }
   }
 
+  //remove the item from cart by clicking on minus
   removeItemFromCartHandler = (cartItem) => {
     let cartItemsList = this.state.cartItemsList;
     let index = cartItemsList.indexOf(cartItem);
@@ -150,6 +131,7 @@ class Details extends React.Component {
     })
   }
 
+  //add item form plus sign of cart handler
   addItemFromCartHandler = (cartItem) => {
     this.handleSnackBar("Item quantity increased by 1!");
     let cartItemsList = this.state.cartItemsList;
@@ -162,6 +144,7 @@ class Details extends React.Component {
     });
   }
 
+  //Add item from menu.categories
   addItemHandler = (item) => {
     this.handleSnackBar("Item added to cart!");
     let cartItemsList = this.state.cartItemsList;
@@ -187,15 +170,14 @@ class Details extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
     return (
       <div>
-
         {/* Header */}
         <div >
           <Header showSearch={false} />
         </div>
-
-        {/* restaurant information section */}
+        {/* restaurant information */}
         <div className="restaurant-information">
           <div className="restaurant-image">
             <div>
@@ -227,9 +209,7 @@ class Details extends React.Component {
             </div>
           </div>
         </div>
-
         <div className="menu-cart-section">
-
           {/* menu-items section */}
           <div className='menu'>
             <div style={{ padding: '3%' }}>
@@ -240,24 +220,21 @@ class Details extends React.Component {
               )}
             </div>
           </div>
-
-          {/* my-cart section */}
+          {/* cart section */}
           <div className="cart">
             <div style={{ padding: '3%' }}>
-              <Card className={styles.card}>
+              <Card className={classes.card}>
                 <CardContent>
                   <div style={{ display: "inline-block", width: "100%" }}>
                     <div style={{ float: "left", width: "10%" }}><Badge badgeContent={this.state.cartItems === null ? 0 : this.state.cartItems} color="primary"><ShoppingCart /></Badge></div>
                     <div style={{ float: "right", width: "90%" }}><Typography variant="h5" gutterBottom style={{ fontWeight: 'bold' }}> My Cart </Typography></div>
                   </div>
-
                   {/* items in cart */}
                   {this.state.cartItemsList.map(cartItem =>
-                    <div key={cartItem.id}>
+                    <div key={cartItem.item.id}>
                       <CartItem item={cartItem} this={this} />
                     </div>
                   )}
-
                   <div style={{ display: "inline-block", width: "100%", paddingTop: "3%" }}>
                     <div style={{ float: "left" }}><Typography variant="body1" gutterBottom style={{ fontWeight: 'bold' }}> TOTAL AMOUNT </Typography></div>
                     <div style={{ float: "right", width: "14%" }}><i className="fa fa-inr" aria-hidden="true"> </i> {this.state.cartTotalPrice.toFixed(2)} </div>
@@ -272,14 +249,14 @@ class Details extends React.Component {
             </div>
           </div>
         </div>
-
+        {/** SnackBar Section */}
         <Snackbar
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left',
           }}
           open={this.state.snackbarOpen}
-          autoHideDuration={1000}
+          autoHideDuration={700}
           onClose={(e) => this.handleSnackBar("")}
           ContentProps={{
             'aria-describedby': 'message-id',
@@ -296,12 +273,12 @@ class Details extends React.Component {
             </IconButton>,
           ]}
         />
-
       </div>
     );
   }
 }
 
+//create the div for the cart item
 function CartItem(props) {
   const cartItem = props.item;
   const color = props.item
@@ -312,17 +289,18 @@ function CartItem(props) {
       <div style={{ width: "10%", display: "flex", alignItems: "center", color: color }}><i className="fa fa-stop-circle-o" aria-hidden="true"></i></div>
       <div style={{ width: "40%", display: "flex", alignItems: "center", textTransform: "capitalize" }}><span style={{ color: "grey" }}> {cartItem.item.item_name} </span></div>
       <div style={{ width: "5%", display: "flex", alignItems: "center" }}>
-        <i onClick={(e) => props.this.removeItemFromCartHandler(cartItem)} className="cartButton fa fa-minus" aria-hidden="true" on></i>
+        <i onClick={(e) => props.this.removeItemFromCartHandler(cartItem)} className="cartButton fa fa-minus" aria-hidden="true" ></i>
       </div>
       <div style={{ width: "5%", display: "flex", alignItems: "center" }}> {cartItem.quantity} </div>
       <div style={{ width: "25%", display: "flex", alignItems: "center" }}>
-        <i onClick={(e) => props.this.addItemFromCartHandler(cartItem)} className="cartButton fa fa-plus" aria-hidden="true" on></i>
+        <i onClick={(e) => props.this.addItemFromCartHandler(cartItem)} className="cartButton fa fa-plus" aria-hidden="true" ></i>
       </div>
       <div style={{ display: "flex", alignItems: "center" }}><i className="fa fa-inr" aria-hidden="true"><span style={{ color: "grey" }}> {cartItem.item.price.toFixed(2)} </span></i></div>
     </div>
   )
 }
 
+//render the category item
 function CategoryItem(props) {
   return (
     <div style={{ padding: "3%" }}>
@@ -358,4 +336,4 @@ function MenuItem(props) {
   )
 };
 
-export default Details;
+export default withStyles(styles)(Details);
