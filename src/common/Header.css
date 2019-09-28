@@ -3,6 +3,9 @@
     height: 60px;
     position: relative;
 }
+.errorMessage {
+    max-width: 194px;
+}
 #fast-food-icon {
     color: white;
     margin-left: 16px;
