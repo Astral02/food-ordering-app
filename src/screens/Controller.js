@@ -20,7 +20,7 @@ class Controller extends Component {
                     {/* Redirection to home page if a customer tries to go to the checkout page directly
                 */}
                     <Route path='/checkout' render={({history},props) => (
-                        sessionStorage.getItem('customer-cart') === null ? (
+                        sessionStorage.getItem('access-token') === null ? (
                             <Redirect to='/' />
                         ) : (
                                 <Checkout {...props} baseUrl={this.baseUrl} history={history} />
